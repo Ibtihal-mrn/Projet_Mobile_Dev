@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Card, Chip, useThemeColor } from "heroui-native";
 import { Text, View, Pressable } from "react-native";
 
@@ -21,75 +21,16 @@ export default function Home() {
   const dangerColor = useThemeColor("danger");
   const foregroundColor = useThemeColor("foreground");
 
+  const ingredients = useQuery(orpc.ingredients.list.queryOptions())
+
+  const addIngredient = useMutation(orpc.ingredients.create.mutationOptions())
+
   return (
     <Container className="p-6">
       <View className="py-4 mb-6">
         <Text className="text-4xl font-bold text-foreground mb-2">BETTER T STACK</Text>
       </View>
-
-      {session?.user ? (
-        <Card variant="secondary" className="mb-6 p-4">
-          <Text className="text-foreground text-base mb-2">
-            Welcome, <Text className="font-medium">{session.user.name}</Text>
-          </Text>
-          <Text className="text-muted text-sm mb-4">{session.user.email}</Text>
-          <Pressable
-            className="bg-danger py-3 px-4 rounded-lg self-start active:opacity-70"
-            onPress={() => {
-              authClient.signOut();
-              queryClient.invalidateQueries();
-            }}
-          >
-            <Text className="text-foreground font-medium">Sign Out</Text>
-          </Pressable>
-        </Card>
-      ) : null}
-
-      <Card variant="secondary" className="p-6">
-        <View className="flex-row items-center justify-between mb-4">
-          <Card.Title>System Status</Card.Title>
-          <Chip variant="secondary" color={isConnected ? "success" : "danger"} size="sm">
-            <Chip.Label>{isConnected ? "LIVE" : "OFFLINE"}</Chip.Label>
-          </Chip>
-        </View>
-
-        <Card className="p-4">
-          <View className="flex-row items-center">
-            <View
-              className={`w-3 h-3 rounded-full mr-3 ${isConnected ? "bg-success" : "bg-muted"}`}
-            />
-            <View className="flex-1">
-              <Text className="text-foreground font-medium mb-1">ORPC Backend</Text>
-              <Card.Description>
-                {isLoading
-                  ? "Checking connection..."
-                  : isConnected
-                    ? "Connected to API"
-                    : "API Disconnected"}
-              </Card.Description>
-            </View>
-            {isLoading && <Ionicons name="hourglass-outline" size={20} color={mutedColor} />}
-            {!isLoading && isConnected && (
-              <Ionicons name="checkmark-circle" size={20} color={successColor} />
-            )}
-            {!isLoading && !isConnected && (
-              <Ionicons name="close-circle" size={20} color={dangerColor} />
-            )}
-          </View>
-        </Card>
-      </Card>
-
-      <Card variant="secondary" className="mt-6 p-4">
-        <Card.Title className="mb-3">Private Data</Card.Title>
-        {privateData && <Card.Description>{privateData.data?.message}</Card.Description>}
-      </Card>
-
-      {!session?.user && (
-        <>
-          <SignIn />
-          <SignUp />
-        </>
-      )}
+      <Text>{JSON.stringify(ingredients.data)}</Text>
     </Container>
   );
 }

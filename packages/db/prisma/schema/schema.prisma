@@ -1,9 +1,143 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated"
+  provider     = "prisma-client"
+  output       = "../generated"
   moduleFormat = "esm"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model Ingredient {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  // Relations
+  recipes RecipeIngredient[]
+}
+
+model AppUser {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  // Relations
+  recipes       Recipe[]
+  collections   Collection[]
+  shoppingLists ShoppingList[]
+
+  followers Follow[] @relation("followers")
+  following Follow[] @relation("following")
+
+  favorites FavoriteRecipe[]
+}
+
+model Recipe {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  prepTime    Int
+  authorId    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  author      AppUser            @relation(fields: [authorId], references: [id])
+  steps       RecipeStep[]
+  ingredients RecipeIngredient[]
+  collections CollectionRecipe[]
+  favoritedBy FavoriteRecipe[]
+}
+
+model RecipeStep {
+  id        Int    @id @default(autoincrement())
+  recipeId  Int
+  stepOrder Int
+  content   String
+
+  // Relations
+  recipe Recipe @relation(fields: [recipeId], references: [id])
+
+  @@unique([recipeId, stepOrder])
+  @@index([recipeId])
+}
+
+model RecipeIngredient {
+  id           Int     @id @default(autoincrement())
+  recipeId     Int
+  ingredientId Int
+  quantity     String?
+  unit         String?
+
+  // Relations
+  recipe     Recipe     @relation(fields: [recipeId], references: [id])
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id])
+
+  @@unique([recipeId, ingredientId])
+  @@index([ingredientId])
+}
+
+model Collection {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  user    AppUser            @relation(fields: [userId], references: [id])
+  recipes CollectionRecipe[]
+
+  @@index([userId])
+}
+
+model CollectionRecipe {
+  collectionId Int
+  recipeId     Int
+
+  // Relations
+  collection Collection @relation(fields: [collectionId], references: [id])
+  recipe     Recipe     @relation(fields: [recipeId], references: [id])
+
+  @@id([collectionId, recipeId])
+  @@index([recipeId])
+}
+
+model ShoppingList {
+  id        Int      @id @default(autoincrement())
+  name      String
+  userId    Int
+  createdAt DateTime @default(now())
+
+  // Relations
+  user AppUser @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Follow {
+  id          Int @id @default(autoincrement())
+  followerId  Int
+  followingId Int
+
+  // Relations
+  follower  AppUser @relation("following", fields: [followerId], references: [id])
+  following AppUser @relation("followers", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+}
+
+model FavoriteRecipe {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  recipeId Int
+
+  // Relations
+  user   AppUser @relation(fields: [userId], references: [id])
+  recipe Recipe  @relation(fields: [recipeId], references: [id])
+
+  @@unique([userId, recipeId])
+  @@index([recipeId])
 }
