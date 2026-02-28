@@ -1,0 +1,76 @@
+Rappel Théorie
+
+But de ORPC : gérer les requêtes du client vers le serveur. 
+Permet de faciliter le développement, donne tous les types prcq c'est local pour le développeur. 
+==> Communication réseau comme si c'est local 
+
+Avantages de React :
+- Déclaratif : Gestion intelligente du DOM
+- React native pour le mobile 
+- Encapsulation 
+- Facile à tester car on créé des fonctions pour chaque composants
+- Composants réutilisables 
+- Composables 
+- Isomorphe : single code base qui possède une séparation côté client et serveur et 
+    Le code doit par défaut tourner pour le client et le serveur
+    Le code doit tourner sur les deux, c'est puremenet une question de référencement 
+- Cross Platform
+
+MPA bon pour le client, SPA bon pour le serveur, l'idée c'est d'essayer de coupler les deux. 
+On veut du MPA et du SPA en même temps. 
+
+But de TanStack Query, avantages : 
+- Idée centrale : cache centrale 
+- Faciliter les invalidités, mais pourquoi les invalider ? 
+- Pourquoi on doit utiliser ça ? Les composants offrent des avantages pour la data fetching. 
+- Clé : cache centrale, l'UI est morcelé et le cache centrale est très intéressant pour les composants 
+    qui ont besoin de savoir qu'une personne est identifiée pour l'afficher
+- les composants sont isolés, mais ils partagent des données donc le cache central est utile 
+
+TanStackStart (fait tourner l'app côté serveur) : on veut faire en sorte que query fonctionne côté serveur 
+
+
+Différence entre application web et mobile : 
+- Endroit où tourne l'app : sur le tel en mobile, on doit juste chercher les données 
+    mais tout est là, sur web on doit télécharger le code de l'app 
+- Référencement, on doit faire quelque chose de bon pour le SEO, le moteur de recherche
+
+Le web est lent prcq on charge l'app et puis seulement on sait quelles sont les données à chercher 
+
+Expo fait tourner react que du côté client, TanStack fait d'abord tourner du côté serveur 
+
+Donner une page statique pas prête c'est mieux pour le référencement 
+
+PreFecth = pas cruciale, on peut mettre un sablier de chargement, sinon on preload si les données importantes doivent être là. 
+
+Update Optimiste : je change ma tâche, je change le cache du react query, on veut que le code fonctionne tout de suite côté client
+    en attendant la réponse du serveur 
+
+Avantages des mono repo, chaque paquet a ses propres dépendances 
+    - Dev dependencies, juste pour le dev, pas pour l'app 
+    - 
+    - Peer dependencies, on ne veut pas que le paquet vienne avec ses propres dépendances car react ne fonctionne bien que si on a qu'une seule 
+        instance de ces dépendances. 
+
+
+Attention à bien comprendre la notion de rerender de react, on doit comprendre que le composant se refait du débtu 
+
+Ce qui protège réellement de la reéxecution d'un code, c'est pas vraiment useEffect, c'est plutot le fait de mettre dans une fonction. 
+Parce que si on reéxécute le fonction, elle va juste se redéfinir 
+
+Le useEffect permet surtout de ... décrire un comportement pour réagir au changement. 
+
+useQuery : je vérifie si y'a des détails dans le cache, si les données sont encore valides, et si elles ne sont pas on fetch 
+==> C'est un hook en fait, car ... 
+
+Discuter des avantages et inconvénients d'un monorepo : 
+- Un des désavantages : build global nécessaire 
+
+
+
+
+Partie sécurité : 
+
+- Envoyer le mdp vers le serveur sans que personne ne le lise : https 
+- Stocker en database : hash, sceller
+- 

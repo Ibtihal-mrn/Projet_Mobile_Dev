@@ -38,6 +38,7 @@ model Recipe {
   id          Int      @id @default(autoincrement())
   title       String
   description String
+  imageUrl    String?
   prepTime    Int
   authorId    Int
   createdAt   DateTime @default(now())

@@ -1,5 +1,5 @@
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { Drawer } from "expo-router/drawer";
 import { useThemeColor } from "heroui-native";
 import React, { useCallback } from "react";
@@ -10,6 +10,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 function DrawerLayout() {
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
+  const router = useRouter();
 
   const renderThemeToggle = useCallback(() => <ThemeToggle />, []);
 
@@ -62,6 +63,40 @@ function DrawerLayout() {
                 <Ionicons name="add-outline" size={24} color={themeColorForeground} />
               </Pressable>
             </Link>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="recipes/[id]"
+        options={{
+          headerTitle: "Recette",
+          drawerItemStyle: {
+            display: "none",
+          },
+          headerLeft: ({ tintColor }) => (
+            <Pressable
+              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(drawer)"))}
+              className="ml-4"
+            >
+              <Ionicons name="arrow-back" size={22} color={tintColor ?? themeColorForeground} />
+            </Pressable>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="recipes/new"
+        options={{
+          headerTitle: "Nouvelle recette",
+          drawerItemStyle: {
+            display: "none",
+          },
+          headerLeft: ({ tintColor }) => (
+            <Pressable
+              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(drawer)"))}
+              className="ml-4"
+            >
+              <Ionicons name="arrow-back" size={22} color={tintColor ?? themeColorForeground} />
+            </Pressable>
           ),
         }}
       />
