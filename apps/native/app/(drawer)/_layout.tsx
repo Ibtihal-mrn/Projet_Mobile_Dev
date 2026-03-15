@@ -6,11 +6,13 @@ import React, { useCallback } from "react";
 import { Pressable, Text } from "react-native";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { authClient } from "@/lib/auth-client";
 
 function DrawerLayout() {
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
   const router = useRouter();
+  const { data: session } = authClient.useSession();
 
   const renderThemeToggle = useCallback(() => <ThemeToggle />, []);
 
@@ -63,6 +65,24 @@ function DrawerLayout() {
                 <Ionicons name="add-outline" size={24} color={themeColorForeground} />
               </Pressable>
             </Link>
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="auth"
+        options={{
+          headerTitle: session?.user ? "Mon compte" : "Connexion",
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>
+              {session?.user ? "Mon compte" : "Connexion"}
+            </Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Ionicons
+              name={session?.user ? "person-circle-outline" : "log-in-outline"}
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
           ),
         }}
       />

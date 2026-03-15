@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import { Text, View } from "react-native";
 
 import { Container } from "@/components/container";
+import { SignIn } from "@/components/sign-in";
+import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
 
@@ -35,6 +37,21 @@ export default function NewRecipeScreen() {
   const [formError, setFormError] = useState<string | null>(null);
 
   const totalSteps = 3;
+
+  if (!session?.user) {
+    return (
+      <Container className="p-6">
+        <View className="gap-4 pb-8">
+          <Text className="text-3xl font-semibold text-foreground">Nouvelle recette</Text>
+          <Text className="text-sm text-muted-foreground">
+            Connecte-toi (ou crée un compte) pour publier une recette.
+          </Text>
+          <SignIn />
+          <SignUp />
+        </View>
+      </Container>
+    );
+  }
 
   const createRecipe = useMutation(
     orpc.recipe.create.mutationOptions({
@@ -160,12 +177,6 @@ export default function NewRecipeScreen() {
         <Text className="text-sm text-muted-foreground">
           Étape {currentStep}/{totalSteps}
         </Text>
-
-        {!session?.user ? (
-          <Text className="text-sm text-warning">
-            Connecte-toi pour pouvoir publier une nouvelle recette.
-          </Text>
-        ) : null}
 
         {formError || createRecipe.isError ? (
           <Text className="text-sm text-danger">
