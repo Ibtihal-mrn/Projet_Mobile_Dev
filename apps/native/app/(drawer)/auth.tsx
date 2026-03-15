@@ -6,10 +6,32 @@ import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
+import { queryClient } from "@/utils/orpc";
 
 export default function AuthScreen() {
   const { data: session, isPending } = authClient.useSession();
   const [showSignIn, setShowSignIn] = useState(false);
+  const [logoutError, setLogoutError] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    try {
+      setLogoutError(null);
+      setIsSigningOut(true);
+
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: async () => {
+            await queryClient.invalidateQueries();
+          },
+        },
+      });
+    } catch (error) {
+      setLogoutError(error instanceof Error ? error.message : "La déconnexion a échoué.");
+    } finally {
+      setIsSigningOut(false);
+    }
+  }
 
   if (isPending) {
     return (
@@ -31,18 +53,19 @@ export default function AuthScreen() {
             Tu es connecté(e) et peux créer tes recettes depuis l'application mobile.
           </Text>
 
+          {logoutError ? <Text className="text-sm text-danger">{logoutError}</Text> : null}
+
           <Surface variant="secondary" className="gap-2 rounded-lg p-4">
             <Text className="text-lg font-semibold text-foreground">{session.user.name}</Text>
             <Text className="text-sm text-foreground">{session.user.email}</Text>
           </Surface>
 
-          <Button
-            onPress={() => {
-              authClient.signOut();
-            }}
-            className="self-start"
-          >
-            <Button.Label>Se déconnecter</Button.Label>
+          <Button onPress={handleSignOut} isDisabled={isSigningOut} className="self-start">
+            {isSigningOut ? (
+              <Spinner size="sm" color="default" />
+            ) : (
+              <Button.Label>Se déconnecter</Button.Label>
+            )}
           </Button>
         </View>
       </Container>
