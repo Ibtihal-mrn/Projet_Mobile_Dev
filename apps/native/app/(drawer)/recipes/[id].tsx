@@ -1,5 +1,6 @@
-import { Stack, useLocalSearchParams } from "expo-router";
+import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "heroui-native";
 import { Image, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
@@ -67,6 +68,20 @@ export default function RecipeDetailsScreen() {
           <Text className="text-3xl font-semibold text-foreground">{recipe.title}</Text>
           <Text className="text-base text-foreground">{recipe.description}</Text>
           <Text className="text-sm text-foreground">Préparation: {recipe.prepTime} min</Text>
+
+          {recipe.isOwner ? (
+            <Link
+              href={{
+                pathname: "/(drawer)/recipes/edit/[id]",
+                params: { id: String(recipe.id) },
+              }}
+              asChild
+            >
+              <Button className="self-start">
+                <Button.Label>Modifier</Button.Label>
+              </Button>
+            </Link>
+          ) : null}
         </View>
 
         <View className="gap-2">
