@@ -2,6 +2,9 @@ import prisma from "@my-better-t-app/db";
 import z from "zod";
 import { protectedProcedure, publicProcedure } from "..";
 
+// Validation schemas
+
+// Valide un ingrédient de recette, soit en référence à un ingrédient existant (ingredientId), soit en créant un nouvel ingrédient (name)
 const recipeIngredientInput = z
   .object({
     ingredientId: z.number().int().positive().optional(),
@@ -13,6 +16,7 @@ const recipeIngredientInput = z
     message: "ingredientId or name is required",
   });
 
+// Valide les données pour créer une recette
 const recipeInput = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1).max(2000),
@@ -22,7 +26,12 @@ const recipeInput = z.object({
   ingredients: z.array(recipeIngredientInput).min(1),
 });
 
+// Reprend les mêmes champs que recipeInput mais avec un id pour l'update
 const recipeUpdateInput = recipeInput.extend({
+  id: z.number().int().positive(),
+});
+
+const recipeDeleteInput = z.object({
   id: z.number().int().positive(),
 });
 
@@ -97,6 +106,7 @@ export default {
         return null;
       }
 
+      // Vérifie si l'utilisateur connecté est le propriétaire de la recette
       const sessionEmail = context.session?.user?.email;
 
       if (!sessionEmail) {
@@ -113,6 +123,7 @@ export default {
 
       return {
         ...recipe,
+        // isOwner est true si l'utilisateur connecté est le propriétaire de la recette
         isOwner: appUser?.id === recipe.authorId,
       };
     }),
@@ -177,14 +188,17 @@ export default {
       });
     }),
 
+  // L'update d'une recette est protégé et vérifie que l'utilisateur connecté est le propriétaire de la recette
   update: protectedProcedure
     .input(recipeUpdateInput)
+    // Vérifie que l'utilisateur connecté est le propriétaire de la recette avant de permettre la mise à jour
     .handler(async ({ input, context }) => {
       const sessionEmail = context.session?.user?.email;
       if (!sessionEmail) {
         throw new Error("Unauthorized");
       }
 
+      // Récupère l'AppUser de l'utilisateur connecté
       const appUser = await prisma.appUser.findUnique({
         where: { email: sessionEmail },
         select: { id: true },
@@ -194,6 +208,7 @@ export default {
         throw new Error("Unauthorized");
       }
 
+      // Récupère la recette à mettre à jour
       const existingRecipe = await prisma.recipe.findUnique({
         where: { id: input.id },
         select: { id: true, authorId: true },
@@ -241,6 +256,64 @@ export default {
             ingredients: { include: { ingredient: true } },
           },
         });
+      });
+    }),
+
+  delete: protectedProcedure
+    .input(recipeDeleteInput)
+    .handler(async ({ input, context }) => {
+      const sessionEmail = context.session?.user?.email;
+      if (!sessionEmail) {
+        throw new Error("Unauthorized");
+      }
+
+      const appUser = await prisma.appUser.findUnique({
+        where: { email: sessionEmail },
+        select: { id: true },
+      });
+
+      if (!appUser) {
+        throw new Error("Unauthorized");
+      }
+
+      const existingRecipe = await prisma.recipe.findUnique({
+        where: { id: input.id },
+        select: { id: true, authorId: true },
+      });
+
+      if (!existingRecipe) {
+        throw new Error("Recipe not found");
+      }
+
+      if (existingRecipe.authorId !== appUser.id) {
+        throw new Error("Forbidden");
+      }
+
+      return prisma.$transaction(async (tx) => {
+        await tx.recipeStep.deleteMany({
+          where: { recipeId: input.id },
+        });
+
+        await tx.recipeIngredient.deleteMany({
+          where: { recipeId: input.id },
+        });
+
+        await tx.collectionRecipe.deleteMany({
+          where: { recipeId: input.id },
+        });
+
+        await tx.favoriteRecipe.deleteMany({
+          where: { recipeId: input.id },
+        });
+
+        const deletedRecipe = await tx.recipe.delete({
+          where: { id: input.id },
+          select: { id: true },
+        });
+
+        return {
+          id: deletedRecipe.id,
+        };
       });
     }),
 };
