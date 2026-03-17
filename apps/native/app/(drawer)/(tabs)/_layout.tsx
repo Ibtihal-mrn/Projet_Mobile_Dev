@@ -35,9 +35,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="two"
         options={{
-          title: "Explore",
+          title: "Amis",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
-            <Ionicons name="compass" size={size} color={color} />
+            <Ionicons name="people-outline" size={size} color={color} />
           ),
         }}
       />

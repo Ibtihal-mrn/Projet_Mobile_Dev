@@ -3,6 +3,7 @@ import type { RouterClient } from "@orpc/server";
 import { protectedProcedure, publicProcedure } from "../index";
 import ingredients from "./ingredients";
 import recipe from "./recipe";
+import user from "./user";
 
 export const appRouter = {
   healthCheck: publicProcedure.handler(() => {
@@ -16,6 +17,7 @@ export const appRouter = {
   }),
   ingredients,
   recipe,
+  user,
 };
 export type AppRouter = typeof appRouter;
 export type AppRouterClient = RouterClient<typeof appRouter>;
