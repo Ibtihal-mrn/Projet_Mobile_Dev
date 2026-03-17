@@ -31,6 +31,7 @@ export default function NewRecipeScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [prepTime, setPrepTime] = useState("30");
+  const [isPublic, setIsPublic] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
   const [ingredients, setIngredients] = useState<IngredientFormRow[]>([emptyIngredient()]);
   const [steps, setSteps] = useState<string[]>([""]);
@@ -163,6 +164,7 @@ export default function NewRecipeScreen() {
     createRecipe.mutate({
       title: title.trim(),
       description: description.trim(),
+      isPublic,
       prepTime: prepTimeNumber,
       imageUrl: imageUrl.trim() || DEFAULT_IMAGE_URL,
       ingredients: cleanedIngredients,
@@ -210,6 +212,18 @@ export default function NewRecipeScreen() {
                 keyboardType="numeric"
               />
             </TextField>
+
+            <View className="gap-2">
+              <Text className="text-sm font-medium text-foreground">Visibilité</Text>
+              <View className="flex-row gap-2">
+                <Button onPress={() => setIsPublic(true)} isDisabled={isPublic}>
+                  <Button.Label>Public</Button.Label>
+                </Button>
+                <Button onPress={() => setIsPublic(false)} isDisabled={!isPublic}>
+                  <Button.Label>Amis uniquement</Button.Label>
+                </Button>
+              </View>
+            </View>
 
             <TextField>
               <Label>Image URL (optionnel)</Label>

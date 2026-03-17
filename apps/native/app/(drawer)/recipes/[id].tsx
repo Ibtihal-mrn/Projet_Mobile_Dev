@@ -119,6 +119,14 @@ export default function RecipeDetailsScreen() {
           <Text className="text-base text-foreground">{recipe.description}</Text>
           <Text className="text-sm text-foreground">Préparation: {recipe.prepTime} min</Text>
 
+          {recipe.showVisibilityBadge ? (
+            <View className="self-start rounded-full bg-secondary px-3 py-1">
+              <Text className="text-xs font-medium text-foreground">
+                {recipe.isPublic ? "Public" : "Privé (amis)"}
+              </Text>
+            </View>
+          ) : null}
+
           {deleteError ? <Text className="text-sm text-danger">{deleteError}</Text> : null}
 
           {recipe.isOwner ? (

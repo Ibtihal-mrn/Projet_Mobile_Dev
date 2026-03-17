@@ -39,6 +39,7 @@ model Recipe {
   title       String
   description String
   imageUrl    String?
+  isPublic    Boolean  @default(true)
   prepTime    Int
   authorId    Int
   createdAt   DateTime @default(now())

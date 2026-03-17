@@ -21,6 +21,7 @@ const recipeInput = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1).max(2000),
   imageUrl: z.string().url().max(2048).optional(),
+  isPublic: z.boolean().default(true),
   prepTime: z.number().int().min(1).max(10000),
   steps: z.array(z.string().min(1).max(2000)).min(1),
   ingredients: z.array(recipeIngredientInput).min(1),
@@ -74,15 +75,61 @@ function baseUsernameFromEmail(email: string) {
   );
 }
 
+async function findAppUserBySessionEmail(email?: string) {
+  if (!email) {
+    return null;
+  }
+
+  return prisma.appUser.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+}
+
+function accessWhereForViewer(viewerId?: number) {
+  if (!viewerId) {
+    return {
+      isPublic: true,
+    };
+  }
+
+  return {
+    OR: [
+      { isPublic: true },
+      { authorId: viewerId },
+      {
+        author: {
+          followers: {
+            some: {
+              followerId: viewerId,
+            },
+          },
+          following: {
+            some: {
+              followingId: viewerId,
+            },
+          },
+        },
+      },
+    ],
+  };
+}
+
 export default {
-  list: publicProcedure.handler(async () => {
+  list: publicProcedure.handler(async ({ context }) => {
+    const appUser = await findAppUserBySessionEmail(
+      context.session?.user?.email,
+    );
+
     return prisma.recipe.findMany({
+      where: accessWhereForViewer(appUser?.id),
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         title: true,
         description: true,
         imageUrl: true,
+        isPublic: true,
         prepTime: true,
       },
     });
@@ -91,10 +138,17 @@ export default {
   byId: publicProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .handler(async ({ input, context }) => {
-      const recipe = await prisma.recipe.findUnique({
-        where: { id: input.id },
+      const appUser = await findAppUserBySessionEmail(
+        context.session?.user?.email,
+      );
+
+      const recipe = await prisma.recipe.findFirst({
+        where: {
+          id: input.id,
+          ...accessWhereForViewer(appUser?.id),
+        },
         include: {
-          author: { select: { id: true, username: true } },
+          author: { select: { id: true, username: true, passwordHash: true } },
           steps: { orderBy: { stepOrder: "asc" } },
           ingredients: {
             include: { ingredient: true },
@@ -106,25 +160,15 @@ export default {
         return null;
       }
 
-      // Vérifie si l'utilisateur connecté est le propriétaire de la recette
-      const sessionEmail = context.session?.user?.email;
-
-      if (!sessionEmail) {
-        return {
-          ...recipe,
-          isOwner: false,
-        };
-      }
-
-      const appUser = await prisma.appUser.findUnique({
-        where: { email: sessionEmail },
-        select: { id: true },
-      });
+      const showVisibilityBadge =
+        recipe.author.passwordHash === "managed-by-better-auth";
+      const { passwordHash: _passwordHash, ...safeAuthor } = recipe.author;
 
       return {
         ...recipe,
-        // isOwner est true si l'utilisateur connecté est le propriétaire de la recette
+        author: safeAuthor,
         isOwner: appUser?.id === recipe.authorId,
+        showVisibilityBadge,
       };
     }),
 
@@ -170,6 +214,7 @@ export default {
           title: input.title,
           description: input.description,
           imageUrl: input.imageUrl,
+          isPublic: input.isPublic,
           prepTime: input.prepTime,
           authorId,
           steps: {
@@ -239,6 +284,7 @@ export default {
             title: input.title,
             description: input.description,
             imageUrl: input.imageUrl,
+            isPublic: input.isPublic,
             prepTime: input.prepTime,
             steps: {
               create: input.steps.map((content, index) => ({
