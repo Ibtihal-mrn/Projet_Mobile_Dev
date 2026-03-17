@@ -85,6 +85,15 @@ export default function Home() {
                     />
 
                     <View className="p-3 gap-1">
+                      {recipe.showVisibilityBadge ? (
+                        <View
+                          className={`self-start rounded-full px-2 py-0.5 mb-1 ${recipe.isPublic ? "bg-success/20" : "bg-warning/20"}`}
+                        >
+                          <Text className={`text-xs font-medium ${recipe.isPublic ? "text-success" : "text-warning"}`}>
+                            {recipe.isPublic ? "Public" : "Privé"}
+                          </Text>
+                        </View>
+                      ) : null}
                       <Card.Title className="text-base font-semibold text-foreground" numberOfLines={1}>
                         {recipe.title}
                       </Card.Title>

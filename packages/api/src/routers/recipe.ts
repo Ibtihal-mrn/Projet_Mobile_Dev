@@ -121,7 +121,7 @@ export default {
       context.session?.user?.email,
     );
 
-    return prisma.recipe.findMany({
+    const rows = await prisma.recipe.findMany({
       where: accessWhereForViewer(appUser?.id),
       orderBy: { createdAt: "desc" },
       select: {
@@ -131,8 +131,14 @@ export default {
         imageUrl: true,
         isPublic: true,
         prepTime: true,
+        author: { select: { passwordHash: true } },
       },
     });
+
+    return rows.map(({ author, ...rest }) => ({
+      ...rest,
+      showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
+    }));
   }),
 
   byId: publicProcedure
