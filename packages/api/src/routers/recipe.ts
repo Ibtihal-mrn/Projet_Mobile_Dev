@@ -141,6 +141,42 @@ export default {
     }));
   }),
 
+  // Liste uniquement les recettes créées par l'utilisateur connecté.
+  mine: protectedProcedure.handler(async ({ context }) => {
+    const sessionEmail = context.session?.user?.email;
+    if (!sessionEmail) {
+      throw new Error("Unauthorized");
+    }
+
+    const appUser = await prisma.appUser.findUnique({
+      where: { email: sessionEmail },
+      select: { id: true },
+    });
+
+    if (!appUser) {
+      return [];
+    }
+
+    const rows = await prisma.recipe.findMany({
+      where: { authorId: appUser.id },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        isPublic: true,
+        prepTime: true,
+        author: { select: { passwordHash: true } },
+      },
+    });
+
+    return rows.map(({ author, ...rest }) => ({
+      ...rest,
+      showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
+    }));
+  }),
+
   byId: publicProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .handler(async ({ input, context }) => {

@@ -41,6 +41,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="Mes_recettes"
+        options={{
+          title: "Mes recettes",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="people-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
+    
   );
 }
