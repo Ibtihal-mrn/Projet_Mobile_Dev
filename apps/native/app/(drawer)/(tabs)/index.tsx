@@ -4,6 +4,9 @@ import { Button, Card } from "heroui-native";
 import { Image, Text, View, useWindowDimensions } from "react-native";
 
 import { Container } from "@/components/container";
+import { SignIn } from "@/components/sign-in";
+import { SignUp } from "@/components/sign-up";
+import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 
 const FALLBACK_RECIPE_IMAGE =
@@ -11,8 +14,13 @@ const FALLBACK_RECIPE_IMAGE =
 
 export default function Home() {
   const { width } = useWindowDimensions();
-  // Récupère la liste des recettes depuis l'API
-  const recipes = useQuery(orpc.recipe.list.queryOptions());
+  const { data: session } = authClient.useSession();
+
+  // Récupère uniquement les recettes du compte connecté
+  const recipes = useQuery({
+    ...orpc.recipe.mine.queryOptions(),
+    enabled: Boolean(session?.user),
+  });
   const recipesErrorMessage =
     recipes.error instanceof Error ? recipes.error.message : "Impossible de charger les recettes.";
 
@@ -26,12 +34,34 @@ export default function Home() {
   const availableWidth = width - SCREEN_PADDING * 2 - GAP * (columns - 1);
   const cardWidth = availableWidth / columns;
 
+  if (!session?.user) {
+    return (
+      <Container className="p-6">
+        <View className="gap-4 pb-8">
+          <Text className="text-3xl font-semibold text-foreground">Mes recettes</Text>
+          <Text className="text-sm text-muted-foreground">
+            Connecte-toi pour voir les recettes que tu as créées.
+          </Text>
+
+          <Link href="/(drawer)/recipes/new" asChild>
+            <Button className="self-start">
+              <Button.Label>+ Nouvelle recette</Button.Label>
+            </Button>
+          </Link>
+
+          <SignIn />
+          <SignUp />
+        </View>
+      </Container>
+    );
+  }
+
   return (
     <Container className="p-6">
       <View className="gap-4 pb-6">
-        <Text className="text-3xl font-semibold text-foreground">Recettes</Text>
+        <Text className="text-3xl font-semibold text-foreground">Mes recettes</Text>
         <Text className="text-base text-foreground">
-          Découvre des idées simples et clique pour voir le détail.
+          Retrouve uniquement les recettes que tu as créées.
         </Text>
 
         <Link href="/(drawer)/recipes/new" asChild>
@@ -111,3 +141,4 @@ export default function Home() {
     </Container>
   );
 }
+

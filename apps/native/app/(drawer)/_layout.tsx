@@ -48,13 +48,13 @@ function DrawerLayout() {
       <Drawer.Screen
         name="(tabs)"
         options={{
-          headerTitle: "Tabs",
+          headerTitle: "Mon espace",
           drawerLabel: ({ color, focused }) => (
-            <Text style={{ color: focused ? color : themeColorForeground }}>Tabs</Text>
+            <Text style={{ color: focused ? color : themeColorForeground }}>Mon espace</Text>
           ),
           drawerIcon: ({ size, color, focused }) => (
             <MaterialIcons
-              name="border-bottom"
+              name="space-dashboard"
               size={size}
               color={focused ? color : themeColorForeground}
             />
