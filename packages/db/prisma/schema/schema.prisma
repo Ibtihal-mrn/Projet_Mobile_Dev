@@ -31,6 +31,9 @@ model AppUser {
   followers Follow[] @relation("followers")
   following Follow[] @relation("following")
 
+  sentFriendRequests     FriendRequest[] @relation("sentFriendRequests")
+  receivedFriendRequests FriendRequest[] @relation("receivedFriendRequests")
+
   favorites FavoriteRecipe[]
 }
 
@@ -129,6 +132,27 @@ model Follow {
 
   @@unique([followerId, followingId])
   @@index([followingId])
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model FriendRequest {
+  id         Int                 @id @default(autoincrement())
+  senderId   Int
+  receiverId Int
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  sender   AppUser @relation("sentFriendRequests", fields: [senderId], references: [id])
+  receiver AppUser @relation("receivedFriendRequests", fields: [receiverId], references: [id])
+
+  @@unique([senderId, receiverId])
+  @@index([receiverId, status])
 }
 
 model FavoriteRecipe {
