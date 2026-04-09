@@ -46,6 +46,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="three"
+        options={{
+          title: "Collections",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="briefcase-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
     
   );

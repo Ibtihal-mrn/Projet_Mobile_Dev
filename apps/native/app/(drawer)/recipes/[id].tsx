@@ -2,10 +2,11 @@ import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Button, Spinner } from "heroui-native";
-import { useState } from "react";
-import { Alert, Image, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Image, Share, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
+import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
 import { orpc, queryClient } from "@/utils/orpc";
 
 const FALLBACK_RECIPE_IMAGE =
@@ -17,6 +18,7 @@ export default function RecipeDetailsScreen() {
   const recipeId = Number(id);
   const hasValidId = Number.isInteger(recipeId) && recipeId > 0;
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [servings, setServings] = useState(2);
 
   const deleteRecipe = useMutation(
     orpc.recipe.delete.mutationOptions({
@@ -72,6 +74,44 @@ export default function RecipeDetailsScreen() {
 
   const recipe = hasValidId ? recipeQuery.data : null;
 
+  const baseServings = useMemo(() => {
+    const maybeServings = (recipe as { servings?: number } | null)?.servings;
+    if (typeof maybeServings === "number" && Number.isFinite(maybeServings) && maybeServings > 0) {
+      return Math.round(maybeServings);
+    }
+
+    return 2;
+  }, [recipe]);
+
+  useEffect(() => {
+    setServings(baseServings);
+  }, [baseServings]);
+
+  async function generateIngredientsList() {
+    if (!recipe) {
+      return;
+    }
+
+    const lines = recipe.ingredients.map((ingredient) => {
+      const scaledQuantity = scaleIngredientQuantity(ingredient.quantity, baseServings, servings);
+      const quantityText = scaledQuantity ? `${scaledQuantity} ` : "";
+      const unitText = ingredient.unit ? `${ingredient.unit} ` : "";
+      return `- ${quantityText}${unitText}${ingredient.ingredient.name}`.trim();
+    });
+
+    const message = [
+      `Liste d'ingredients - ${recipe.title}`,
+      `Portions: ${servings} (base: ${baseServings})`,
+      "",
+      ...lines,
+    ].join("\n");
+
+    await Share.share({
+      title: `Ingredients - ${recipe.title}`,
+      message,
+    });
+  }
+
   if (!hasValidId) {
     return (
       <Container className="p-6">
@@ -118,6 +158,7 @@ export default function RecipeDetailsScreen() {
           <Text className="text-3xl font-semibold text-foreground">{recipe.title}</Text>
           <Text className="text-base text-foreground">{recipe.description}</Text>
           <Text className="text-sm text-foreground">Préparation: {recipe.prepTime} min</Text>
+          <Text className="text-sm text-foreground">Portions de base: {baseServings}</Text>
 
           {recipe.showVisibilityBadge ? (
             <View className="self-start rounded-full bg-secondary px-3 py-1">
@@ -159,14 +200,48 @@ export default function RecipeDetailsScreen() {
         </View>
 
         <View className="gap-2">
-          <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
-          {recipe.ingredients.map((ingredient) => (
-            <Text key={ingredient.id} className="text-base text-foreground">
-              • {ingredient.quantity ? `${ingredient.quantity} ` : ""}
-              {ingredient.unit ? `${ingredient.unit} ` : ""}
-              {ingredient.ingredient.name}
-            </Text>
-          ))}
+          <Text className="text-xl font-semibold text-foreground">Adapter les portions</Text>
+          <View className="flex-row items-center gap-3">
+            <Button
+              className="self-start"
+              onPress={() => setServings((previous) => Math.max(1, previous - 1))}
+              isDisabled={servings <= 1}
+            >
+              <Button.Label>-</Button.Label>
+            </Button>
+            <Text className="text-base text-foreground">{servings} personne{servings > 1 ? "s" : ""}</Text>
+            <Button className="self-start" onPress={() => setServings((previous) => previous + 1)}>
+              <Button.Label>+</Button.Label>
+            </Button>
+            <Button className="self-start" onPress={() => setServings(baseServings)}>
+              <Button.Label>Reset</Button.Label>
+            </Button>
+          </View>
+        </View>
+
+        <View className="gap-2">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
+            <Button className="self-start" onPress={generateIngredientsList}>
+              <Button.Label>Générer la liste</Button.Label>
+            </Button>
+          </View>
+
+          {recipe.ingredients.map((ingredient) => {
+            const scaledQuantity = scaleIngredientQuantity(
+              ingredient.quantity,
+              baseServings,
+              servings,
+            );
+
+            return (
+              <Text key={ingredient.id} className="text-base text-foreground">
+                • {scaledQuantity ? `${scaledQuantity} ` : ""}
+                {ingredient.unit ? `${ingredient.unit} ` : ""}
+                {ingredient.ingredient.name}
+              </Text>
+            );
+          })}
         </View>
 
         <View className="gap-2 pb-8">
