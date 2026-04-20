@@ -3,10 +3,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Button, Spinner } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Image, Share, Text, View } from "react-native";
+import { Alert, Image, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
+import { addShoppingList, createShoppingListPdf } from "@/lib/shopping-lists";
 import { orpc, queryClient } from "@/utils/orpc";
 
 const FALLBACK_RECIPE_IMAGE =
@@ -19,6 +20,8 @@ export default function RecipeDetailsScreen() {
   const hasValidId = Number.isInteger(recipeId) && recipeId > 0;
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [servings, setServings] = useState(2);
+  const [isGeneratingList, setIsGeneratingList] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
 
   const deleteRecipe = useMutation(
     orpc.recipe.delete.mutationOptions({
@@ -92,24 +95,38 @@ export default function RecipeDetailsScreen() {
       return;
     }
 
-    const lines = recipe.ingredients.map((ingredient) => {
-      const scaledQuantity = scaleIngredientQuantity(ingredient.quantity, baseServings, servings);
-      const quantityText = scaledQuantity ? `${scaledQuantity} ` : "";
-      const unitText = ingredient.unit ? `${ingredient.unit} ` : "";
-      return `- ${quantityText}${unitText}${ingredient.ingredient.name}`.trim();
-    });
+    setIsGeneratingList(true);
 
-    const message = [
-      `Liste d'ingredients - ${recipe.title}`,
-      `Portions: ${servings} (base: ${baseServings})`,
-      "",
-      ...lines,
-    ].join("\n");
+    try {
+      const items = recipe.ingredients.map((ingredient) => {
+        const scaledQuantity = scaleIngredientQuantity(ingredient.quantity, baseServings, servings);
+        const quantityText = scaledQuantity ? `${scaledQuantity} ` : "";
+        const unitText = ingredient.unit ? `${ingredient.unit} ` : "";
+        return `${quantityText}${unitText}${ingredient.ingredient.name}`.trim();
+      });
 
-    await Share.share({
-      title: `Ingredients - ${recipe.title}`,
-      message,
-    });
+      const pdf = await createShoppingListPdf({
+        recipeId: recipe.id,
+        recipeTitle: recipe.title,
+        servings,
+        baseServings,
+        items,
+      });
+
+      await addShoppingList(pdf);
+      setListError(null);
+
+      Alert.alert(
+        "PDF généré",
+        "La liste de courses a été enregistrée. Tu peux la retrouver dans l'onglet Liste de courses.",
+      );
+    } catch (error) {
+      setListError(
+        error instanceof Error ? error.message : "Impossible de générer la liste de courses en PDF.",
+      );
+    } finally {
+      setIsGeneratingList(false);
+    }
   }
 
   if (!hasValidId) {
@@ -222,10 +239,12 @@ export default function RecipeDetailsScreen() {
         <View className="gap-2">
           <View className="flex-row items-center justify-between">
             <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
-            <Button className="self-start" onPress={generateIngredientsList}>
-              <Button.Label>Générer la liste</Button.Label>
+            <Button className="self-start" onPress={generateIngredientsList} isDisabled={isGeneratingList}>
+              {isGeneratingList ? <Spinner size="sm" color="default" /> : <Button.Label>Générer la liste</Button.Label>}
             </Button>
           </View>
+
+          {listError ? <Text className="text-sm text-danger">{listError}</Text> : null}
 
           {recipe.ingredients.map((ingredient) => {
             const scaledQuantity = scaleIngredientQuantity(

@@ -55,6 +55,15 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="four"
+        options={{
+          title: "Liste de courses",
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
+            <Ionicons name="basket-outline" size={size} color={color} />
+          ),
+        }}
+      />
     </Tabs>
     
   );
