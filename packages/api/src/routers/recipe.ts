@@ -36,6 +36,14 @@ const recipeDeleteInput = z.object({
   id: z.number().int().positive(),
 });
 
+const recipeSearchInput = z.object({
+  query: z.string().trim().max(200).optional(),
+  ingredients: z.array(z.string().trim().min(1).max(80)).max(20).optional(),
+  prepTimeMin: z.number().int().min(1).max(10000).optional(),
+  prepTimeMax: z.number().int().min(1).max(10000).optional(),
+  limit: z.number().int().min(1).max(100).default(50),
+});
+
 function buildIngredientsData(
   ingredients: Array<z.infer<typeof recipeIngredientInput>>,
 ) {
@@ -140,6 +148,100 @@ export default {
       showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
     }));
   }),
+
+  search: publicProcedure
+    .input(recipeSearchInput)
+    .handler(async ({ input, context }) => {
+      const appUser = await findAppUserBySessionEmail(
+        context.session?.user?.email,
+      );
+
+      const normalizedQuery = input.query?.trim();
+      const normalizedIngredients = (input.ingredients ?? [])
+        .map((ingredient) => ingredient.trim().toLowerCase())
+        .filter(Boolean);
+
+      const minPrepTime = input.prepTimeMin;
+      const maxPrepTime = input.prepTimeMax;
+
+      if (
+        typeof minPrepTime === "number" &&
+        typeof maxPrepTime === "number" &&
+        minPrepTime > maxPrepTime
+      ) {
+        throw new Error(
+          "Le temps minimum ne peut pas etre superieur au temps maximum.",
+        );
+      }
+
+      const rows = await prisma.recipe.findMany({
+        where: {
+          ...accessWhereForViewer(appUser?.id),
+          ...(normalizedQuery
+            ? {
+                OR: [
+                  {
+                    title: {
+                      contains: normalizedQuery,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    description: {
+                      contains: normalizedQuery,
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              }
+            : {}),
+          ...(normalizedIngredients.length
+            ? {
+                AND: normalizedIngredients.map((ingredientName) => ({
+                  ingredients: {
+                    some: {
+                      ingredient: {
+                        name: {
+                          contains: ingredientName,
+                          mode: "insensitive",
+                        },
+                      },
+                    },
+                  },
+                })),
+              }
+            : {}),
+          ...(typeof minPrepTime === "number" || typeof maxPrepTime === "number"
+            ? {
+                prepTime: {
+                  ...(typeof minPrepTime === "number"
+                    ? { gte: minPrepTime }
+                    : {}),
+                  ...(typeof maxPrepTime === "number"
+                    ? { lte: maxPrepTime }
+                    : {}),
+                },
+              }
+            : {}),
+        },
+        orderBy: { createdAt: "desc" },
+        take: input.limit,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          isPublic: true,
+          prepTime: true,
+          author: { select: { passwordHash: true } },
+        },
+      });
+
+      return rows.map(({ author, ...rest }) => ({
+        ...rest,
+        showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
+      }));
+    }),
 
   // Liste uniquement les recettes créées par l'utilisateur connecté.
   mine: protectedProcedure.handler(async ({ context }) => {

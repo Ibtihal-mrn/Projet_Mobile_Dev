@@ -69,6 +69,22 @@ function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="search"
+        options={{
+          headerTitle: "Recherche recettes",
+          drawerLabel: ({ color, focused }) => (
+            <Text style={{ color: focused ? color : themeColorForeground }}>Recherche</Text>
+          ),
+          drawerIcon: ({ size, color, focused }) => (
+            <Ionicons
+              name="search-outline"
+              size={size}
+              color={focused ? color : themeColorForeground}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="auth"
         options={{
           headerTitle: session?.user ? "Mon compte" : "Connexion",
