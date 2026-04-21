@@ -1,6 +1,7 @@
 import type { RouterClient } from "@orpc/server";
 
 import { protectedProcedure, publicProcedure } from "../index";
+import collection from "./collection";
 import ingredients from "./ingredients";
 import recipe from "./recipe";
 import user from "./user";
@@ -15,6 +16,7 @@ export const appRouter = {
       user: context.session?.user,
     };
   }),
+  collection,
   ingredients,
   recipe,
   user,

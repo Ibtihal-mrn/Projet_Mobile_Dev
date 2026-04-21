@@ -1,7 +1,7 @@
 import { Link, Stack, useLocalSearchParams } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { Button, Spinner } from "heroui-native";
+import { Button, Input, Spinner, TextField } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
 import { Alert, Image, Text, View } from "react-native";
 
@@ -22,6 +22,10 @@ export default function RecipeDetailsScreen() {
   const [servings, setServings] = useState(2);
   const [isGeneratingList, setIsGeneratingList] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
+  const [isSavePanelOpen, setIsSavePanelOpen] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState("");
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [savingCollectionId, setSavingCollectionId] = useState<number | null>(null);
 
   const deleteRecipe = useMutation(
     orpc.recipe.delete.mutationOptions({
@@ -77,6 +81,15 @@ export default function RecipeDetailsScreen() {
 
   const recipe = hasValidId ? recipeQuery.data : null;
 
+  const collectionsQuery = useQuery({
+    ...orpc.collection.listMine.queryOptions({
+      input: {
+        recipeId: hasValidId ? recipeId : undefined,
+      },
+    }),
+    enabled: isSavePanelOpen && hasValidId,
+  });
+
   const baseServings = useMemo(() => {
     const maybeServings = (recipe as { servings?: number } | null)?.servings;
     if (typeof maybeServings === "number" && Number.isFinite(maybeServings) && maybeServings > 0) {
@@ -89,6 +102,66 @@ export default function RecipeDetailsScreen() {
   useEffect(() => {
     setServings(baseServings);
   }, [baseServings]);
+
+  const createCollectionMutation = useMutation(
+    orpc.collection.create.mutationOptions({
+      onSuccess: async () => {
+        setSaveError(null);
+        setNewCollectionName("");
+        await queryClient.invalidateQueries({
+          queryKey: orpc.collection.listMine.queryKey({
+            input: { recipeId },
+          }),
+        });
+      },
+      onError: (error) => {
+        setSaveError(error.message || "Impossible de creer la collection.");
+      },
+    }),
+  );
+
+  const addRecipeToCollectionMutation = useMutation(
+    orpc.collection.addRecipe.mutationOptions({
+      onMutate: (variables) => {
+        setSavingCollectionId(variables.collectionId);
+      },
+      onSuccess: async () => {
+        setSaveError(null);
+        await queryClient.invalidateQueries({
+          queryKey: orpc.collection.listMine.queryKey({
+            input: { recipeId },
+          }),
+        });
+      },
+      onError: (error) => {
+        setSaveError(error.message || "Impossible d'enregistrer la recette dans cette collection.");
+      },
+      onSettled: () => {
+        setSavingCollectionId(null);
+      },
+    }),
+  );
+
+  function createCollection() {
+    const trimmed = newCollectionName.trim();
+    if (!trimmed) {
+      setSaveError("Le nom de la collection est obligatoire.");
+      return;
+    }
+
+    createCollectionMutation.mutate({ name: trimmed });
+  }
+
+  function saveToCollection(collectionId: number) {
+    if (!recipe) {
+      return;
+    }
+
+    addRecipeToCollectionMutation.mutate({
+      collectionId,
+      recipeId: recipe.id,
+    });
+  }
 
   async function generateIngredientsList() {
     if (!recipe) {
@@ -212,6 +285,97 @@ export default function RecipeDetailsScreen() {
                   <Button.Label>Supprimer</Button.Label>
                 )}
               </Button>
+            </View>
+          ) : null}
+        </View>
+
+        <View className="gap-2">
+          <View className="flex-row gap-2">
+            <Button
+              className="self-start"
+              variant={isSavePanelOpen ? "outline" : "primary"}
+              onPress={() => {
+                setSaveError(null);
+                setIsSavePanelOpen((previous) => !previous);
+              }}
+            >
+              <Button.Label>{isSavePanelOpen ? "Fermer" : "Enregistrer"}</Button.Label>
+            </Button>
+          </View>
+
+          {isSavePanelOpen ? (
+            <View className="gap-3 rounded-xl bg-secondary p-4">
+              <Text className="text-base font-semibold text-foreground">Enregistrer dans une collection</Text>
+
+              {saveError ? <Text className="text-sm text-danger">{saveError}</Text> : null}
+
+              <View className="gap-2">
+                <TextField>
+                  <Input
+                    value={newCollectionName}
+                    onChangeText={setNewCollectionName}
+                    placeholder="Nom de la nouvelle collection"
+                    autoCorrect={false}
+                    onSubmitEditing={createCollection}
+                    returnKeyType="done"
+                  />
+                </TextField>
+                <Button
+                  className="self-start"
+                  variant="outline"
+                  onPress={createCollection}
+                  isDisabled={createCollectionMutation.isPending}
+                >
+                  {createCollectionMutation.isPending ? (
+                    <Spinner size="sm" color="default" />
+                  ) : (
+                    <Button.Label>Creer une collection</Button.Label>
+                  )}
+                </Button>
+              </View>
+
+              {collectionsQuery.isLoading ? (
+                <View className="items-center py-2">
+                  <Spinner size="sm" color="default" />
+                </View>
+              ) : null}
+
+              {collectionsQuery.data?.map((collection) => {
+                const isSaving = savingCollectionId === collection.id;
+
+                return (
+                  <View
+                    key={collection.id}
+                    className="flex-row items-center justify-between rounded-lg bg-background px-3 py-2"
+                  >
+                    <View className="shrink pr-2">
+                      <Text className="text-sm font-medium text-foreground">{collection.name}</Text>
+                      <Text className="text-xs text-muted-foreground">
+                        {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
+                      </Text>
+                    </View>
+
+                    <Button
+                      size="sm"
+                      variant={collection.hasRecipe ? "outline" : "primary"}
+                      onPress={() => saveToCollection(collection.id)}
+                      isDisabled={isSaving || collection.hasRecipe}
+                    >
+                      {isSaving ? (
+                        <Spinner size="sm" color="default" />
+                      ) : (
+                        <Button.Label>{collection.hasRecipe ? "Deja enregistree" : "Enregistrer"}</Button.Label>
+                      )}
+                    </Button>
+                  </View>
+                );
+              })}
+
+              {!collectionsQuery.isLoading && !collectionsQuery.data?.length ? (
+                <Text className="text-sm text-muted-foreground">
+                  Cree d'abord une collection puis enregistre ta recette.
+                </Text>
+              ) : null}
             </View>
           ) : null}
         </View>
