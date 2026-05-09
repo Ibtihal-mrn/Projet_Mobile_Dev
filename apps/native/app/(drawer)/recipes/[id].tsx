@@ -125,11 +125,16 @@ export default function RecipeDetailsScreen() {
       onMutate: (variables) => {
         setSavingCollectionId(variables.collectionId);
       },
-      onSuccess: async () => {
+      onSuccess: async (_, variables) => {
         setSaveError(null);
         await queryClient.invalidateQueries({
           queryKey: orpc.collection.listMine.queryKey({
             input: { recipeId },
+          }),
+        });
+        await queryClient.invalidateQueries({
+          queryKey: orpc.collection.byId.queryKey({
+            input: { id: variables.collectionId },
           }),
         });
       },
