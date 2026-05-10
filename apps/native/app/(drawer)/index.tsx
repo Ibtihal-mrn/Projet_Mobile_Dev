@@ -34,11 +34,7 @@ export default function Home() {
           Découvre des idées simples et clique pour voir le détail.
         </Text>
 
-        <Link href="/(drawer)/recipes/new" asChild>
-          <Button className="self-start">
-            <Button.Label>+ Nouvelle recette</Button.Label>
-          </Button>
-        </Link>
+        
 
         <View className="flex-row flex-wrap">
           {recipes.isLoading ? (
