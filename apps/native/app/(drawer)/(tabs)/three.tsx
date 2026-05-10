@@ -1,8 +1,8 @@
 import { Link } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button, Input, Spinner, TextField } from "heroui-native";
+import { Button, Input, Spinner, TextField, Card } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, Image, useWindowDimensions } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -10,10 +10,23 @@ import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
 
+const FALLBACK_COLLECTION_IMAGE =
+  "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=500&q=60";
+
 export default function CollectionsScreen() {
+  const { width } = useWindowDimensions();
   const { data: session } = authClient.useSession();
   const [newCollectionName, setNewCollectionName] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const SCREEN_PADDING = 24;
+  const GAP = 12;
+
+  // 1 colonne sur petit écran, 2 sur mobile, 3+ sur tablette
+  const columns = width < 420 ? 1 : width < 768 ? 2 : 3;
+
+  const availableWidth = width - SCREEN_PADDING * 2 - GAP * (columns - 1);
+  const cardWidth = availableWidth / columns;
 
   const collectionsQuery = useQuery({
     ...orpc.collection.listMine.queryOptions(),
@@ -105,11 +118,11 @@ export default function CollectionsScreen() {
           </Button>
         </View>
 
-        <View className="gap-2 rounded-xl bg-secondary p-4">
+        <View className="gap-2">
           <Text className="text-base font-semibold text-foreground">Mes collections</Text>
 
           {collectionsQuery.isLoading ? (
-            <View className="items-center py-2">
+            <View className="items-center py-4">
               <Spinner size="sm" color="default" />
             </View>
           ) : null}
@@ -124,23 +137,69 @@ export default function CollectionsScreen() {
             </Text>
           ) : null}
 
-          {collectionsQuery.data?.map((collection) => (
-            <Link
-              key={collection.id}
-              href={{
-                pathname: "/(drawer)/collections/[id]",
-                params: { id: String(collection.id) },
-              }}
-              asChild
-            >
-              <View className="rounded-xl bg-background px-4 py-3">
-                <Text className="text-base font-medium text-foreground">{collection.name}</Text>
-                <Text className="text-xs text-muted-foreground">
-                  {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
-                </Text>
-              </View>
-            </Link>
-          ))}
+          {collectionsQuery.data && collectionsQuery.data.length > 0 ? (
+            <View className="flex-row flex-wrap">
+              {collectionsQuery.data.map((collection, index) => {
+                const isLastInRow = (index + 1) % columns === 0;
+                const collectionImage = collection.imageUrls?.[0] ?? FALLBACK_COLLECTION_IMAGE;
+
+                return (
+                  <View
+                    key={collection.id}
+                    style={{
+                      width: cardWidth,
+                      marginRight: isLastInRow ? 0 : GAP,
+                      marginBottom: GAP,
+                    }}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/(drawer)/collections/[id]",
+                        params: { id: String(collection.id) },
+                      }}
+                      asChild
+                    >
+                      <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
+                        {/* Single image with overlay info */}
+                        <View style={{ width: cardWidth, height: cardWidth, position: "relative" }}>
+                          <Image
+                            source={{ uri: collectionImage }}
+                            style={{ width: "100%", height: "100%" }}
+                            resizeMode="cover"
+                          />
+
+                          {/* Dark gradient overlay for text readability */}
+                          <View
+                            style={{
+                              position: "absolute",
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              height: "20%",
+                              backgroundColor: "rgba(0, 0, 0, 0.5)",
+                            }}
+                          />
+
+                          {/* Collection info */}
+                          <View className="absolute bottom-0 inset-x-0 p-3">
+                            <Text
+                              className="text-lg font-semibold text-white"
+                              numberOfLines={2}
+                            >
+                              {collection.name}
+                            </Text>
+                            <Text className="text-xs text-gray-100 mt-1">
+                              {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
+                            </Text>
+                          </View>
+                        </View>
+                      </Card>
+                    </Link>
+                  </View>
+                );
+              })}
+            </View>
+          ) : null}
         </View>
       </View>
     </Container>

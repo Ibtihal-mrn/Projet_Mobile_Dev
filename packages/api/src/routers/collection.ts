@@ -104,13 +104,22 @@ const collectionRouter = {
           _count: {
             select: { recipes: true },
           },
-          recipes: input?.recipeId
-            ? {
-                where: { recipeId: input.recipeId },
-                select: { recipeId: true },
-                take: 1,
-              }
-            : false,
+          recipes: {
+            select: {
+              recipe: {
+                select: {
+                  imageUrl: true,
+                },
+              },
+            },
+            orderBy: {
+              recipe: {
+                createdAt: "desc",
+              },
+            },
+            take: input?.recipeId ? 1 : 4,
+            where: input?.recipeId ? { recipeId: input.recipeId } : undefined,
+          },
         },
       });
 
@@ -119,6 +128,9 @@ const collectionRouter = {
         name: collection.name,
         createdAt: collection.createdAt,
         recipesCount: collection._count.recipes,
+        imageUrls: collection.recipes
+          .map((r) => r.recipe.imageUrl)
+          .filter(Boolean),
         hasRecipe: input?.recipeId ? collection.recipes.length > 0 : false,
       }));
     }),
