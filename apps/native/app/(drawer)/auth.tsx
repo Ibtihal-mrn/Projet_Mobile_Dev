@@ -1,6 +1,6 @@
 import { Button, Spinner, Surface } from "heroui-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -45,6 +45,9 @@ export default function AuthScreen() {
   }
 
   if (session?.user) {
+    const avatarSeed = session.user.name || session.user.email;
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarSeed)}&background=0f766e&color=ffffff&size=256&bold=true&format=png`;
+
     return (
       <Container className="p-6">
         <View className="gap-4 pb-8">
@@ -55,9 +58,13 @@ export default function AuthScreen() {
 
           {logoutError ? <Text className="text-sm text-danger">{logoutError}</Text> : null}
 
-          <Surface variant="secondary" className="gap-2 rounded-lg p-4">
-            <Text className="text-lg font-semibold text-foreground">{session.user.name}</Text>
-            <Text className="text-sm text-foreground">{session.user.email}</Text>
+          <Surface variant="secondary" className="flex-row items-center gap-4 rounded-lg p-4">
+            <Image source={{ uri: avatarUrl }} className="h-16 w-16 rounded-full bg-background" />
+
+            <View className="flex-1 gap-1">
+              <Text className="text-lg font-semibold text-foreground">{session.user.name}</Text>
+              <Text className="text-sm text-foreground">{session.user.email}</Text>
+            </View>
           </Surface>
 
           <Button onPress={handleSignOut} isDisabled={isSigningOut} className="self-start">

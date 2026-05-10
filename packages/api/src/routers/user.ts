@@ -79,6 +79,50 @@ async function getFriendIds(currentAppUserId: number, candidateIds: number[]) {
   return new Set(rows.map((row) => row.followingId));
 }
 
+function avatarUrlFromUsername(username: string) {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=0f766e&color=ffffff&size=256&bold=true&format=png`;
+}
+
+async function getRelationStatus(currentAppUserId: number, targetAppUserId: number) {
+  if (currentAppUserId === targetAppUserId) {
+    return "self" as const;
+  }
+
+  const [friendIds, outgoingRequest, incomingRequest] = await Promise.all([
+    getFriendIds(currentAppUserId, [targetAppUserId]),
+    prisma.friendRequest.findFirst({
+      where: {
+        senderId: currentAppUserId,
+        receiverId: targetAppUserId,
+        status: "PENDING",
+      },
+      select: { id: true },
+    }),
+    prisma.friendRequest.findFirst({
+      where: {
+        senderId: targetAppUserId,
+        receiverId: currentAppUserId,
+        status: "PENDING",
+      },
+      select: { id: true },
+    }),
+  ]);
+
+  if (friendIds.has(targetAppUserId)) {
+    return "friend" as const;
+  }
+
+  if (incomingRequest) {
+    return "incoming_pending" as const;
+  }
+
+  if (outgoingRequest) {
+    return "outgoing_pending" as const;
+  }
+
+  return "none" as const;
+}
+
 const userRouter = {
   // Recherche des utilisateurs et retourne leur état de relation.
   search: protectedProcedure
@@ -156,9 +200,86 @@ const userRouter = {
         return {
           id: user.id,
           username: user.username,
+          avatarUrl: avatarUrlFromUsername(user.username),
           relationStatus,
         };
       });
+    }),
+
+  // Retourne le profil d'un utilisateur avec le contenu qu'il est possible d'afficher au visiteur.
+  profile: protectedProcedure
+    .input(z.object({ userId: z.number().int().positive() }))
+    .handler(async ({ input, context }) => {
+      const currentAppUser = await ensureCurrentAppUser(
+        context.session.user.email,
+      );
+
+      const targetUser = await prisma.appUser.findUnique({
+        where: { id: input.userId },
+        select: {
+          id: true,
+          username: true,
+        },
+      });
+
+      if (!targetUser) {
+        throw new ORPCError("NOT_FOUND", {
+          message: "Profil utilisateur introuvable.",
+        });
+      }
+
+      const relationStatus = await getRelationStatus(currentAppUser.id, targetUser.id);
+      const canSeePrivateContent = relationStatus === "self" || relationStatus === "friend";
+
+      const recipes = await prisma.recipe.findMany({
+        where: {
+          authorId: targetUser.id,
+          ...(canSeePrivateContent ? {} : { isPublic: true }),
+        },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          imageUrl: true,
+          isPublic: true,
+          prepTime: true,
+          author: { select: { passwordHash: true } },
+        },
+      });
+
+      const collections = canSeePrivateContent
+        ? await prisma.collection.findMany({
+            where: { userId: targetUser.id },
+            orderBy: { createdAt: "desc" },
+            select: {
+              id: true,
+              name: true,
+              createdAt: true,
+              _count: {
+                select: { recipes: true },
+              },
+            },
+          })
+        : [];
+
+      return {
+        id: targetUser.id,
+        username: targetUser.username,
+        avatarUrl: avatarUrlFromUsername(targetUser.username),
+        relationStatus,
+        canSeePrivateContent,
+        recipes: recipes.map(({ author, ...recipe }) => ({
+          ...recipe,
+          showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
+        })),
+        collections: collections.map((collection) => ({
+          id: collection.id,
+          name: collection.name,
+          createdAt: collection.createdAt,
+          recipesCount: collection._count.recipes,
+        })),
+      };
     }),
 
   // Envoie une demande d'ami au destinataire.
@@ -339,7 +460,10 @@ const userRouter = {
       },
     });
 
-    return friends;
+    return friends.map((friend) => ({
+      ...friend,
+      avatarUrl: avatarUrlFromUsername(friend.username),
+    }));
   }),
 };
 

@@ -154,6 +154,23 @@ function DrawerLayout() {
         }}
       />
       <Drawer.Screen
+        name="users/[id]"
+        options={{
+          headerTitle: "Profil",
+          drawerItemStyle: {
+            display: "none",
+          },
+          headerLeft: ({ tintColor }) => (
+            <Pressable
+              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)/two"))}
+              className="ml-4"
+            >
+              <Ionicons name="arrow-back" size={22} color={tintColor ?? themeColorForeground} />
+            </Pressable>
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="recipes/edit/[id]"
         options={{
           headerTitle: "Modifier la recette",

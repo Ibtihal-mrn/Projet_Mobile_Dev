@@ -1,7 +1,8 @@
+import { Link } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Input, Spinner, TextField } from "heroui-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Image, Pressable, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -150,9 +151,25 @@ export default function AmisScreen() {
           ) : null}
 
           {friendsQuery.data?.map((friend) => (
-            <Text key={friend.id} className="text-sm text-foreground">
-              {friend.username}
-            </Text>
+            <Link
+              key={friend.id}
+              href={{
+                pathname: "/(drawer)/users/[id]",
+                params: { id: String(friend.id) },
+              }}
+              asChild
+            >
+              <Pressable className="flex-row items-center gap-3 rounded-xl bg-background px-4 py-3">
+                <Image
+                  source={{ uri: friend.avatarUrl }}
+                  className="h-11 w-11 rounded-full bg-secondary"
+                />
+                <View className="flex-1">
+                  <Text className="text-sm font-medium text-foreground">{friend.username}</Text>
+                  <Text className="text-xs text-muted-foreground">Ouvrir le profil</Text>
+                </View>
+              </Pressable>
+            </Link>
           ))}
         </View>
 
@@ -218,11 +235,25 @@ export default function AmisScreen() {
           const isDisabled = isPending || !canSendRequest;
 
           return (
-            <View
-              key={user.id}
-              className="flex-row items-center justify-between rounded-xl bg-secondary px-4 py-3"
-            >
-              <Text className="text-base font-medium text-foreground">{user.username}</Text>
+            <View key={user.id} className="flex-row items-center gap-3 rounded-xl bg-secondary px-4 py-3">
+              <Link
+                href={{
+                  pathname: "/(drawer)/users/[id]",
+                  params: { id: String(user.id) },
+                }}
+                asChild
+              >
+                <Pressable className="flex-row flex-1 items-center gap-3">
+                  <Image
+                    source={{ uri: user.avatarUrl }}
+                    className="h-11 w-11 rounded-full bg-background"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-medium text-foreground">{user.username}</Text>
+                    <Text className="text-xs text-muted-foreground">Voir le profil</Text>
+                  </View>
+                </Pressable>
+              </Link>
 
               <Button
                 size="sm"
