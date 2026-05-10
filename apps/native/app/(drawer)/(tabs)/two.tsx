@@ -76,104 +76,12 @@ export default function AmisScreen() {
 
   return (
     <Container className="p-6">
+      
       <View className="gap-4 pb-8">
         <Text className="text-3xl font-semibold text-foreground">Amis</Text>
-        <Text className="text-sm text-muted-foreground">Gère tes demandes d'amis et cherche des profils.</Text>
 
         {actionError ? <Text className="text-sm text-danger">{actionError}</Text> : null}
 
-        <View className="gap-2 rounded-xl bg-secondary p-4">
-          <Text className="text-base font-semibold text-foreground">Demandes reçues</Text>
-
-          {pendingRequestsQuery.isLoading ? (
-            <View className="items-center py-2">
-              <Spinner size="sm" color="default" />
-            </View>
-          ) : null}
-
-          {pendingRequestsQuery.data?.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">Aucune demande en attente.</Text>
-          ) : null}
-
-          {pendingRequestsQuery.data?.map((request) => {
-            const isPending =
-              respondToRequest.isPending && respondToRequest.variables?.requestId === request.requestId;
-
-            return (
-              <View key={request.requestId} className="flex-row items-center justify-between gap-3">
-                <Text className="text-sm text-foreground">{request.username}</Text>
-
-                <View className="flex-row gap-2">
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    onPress={() =>
-                      respondToRequest.mutate({
-                        requestId: request.requestId,
-                        action: "accept",
-                      })
-                    }
-                    isDisabled={isPending}
-                  >
-                    <Button.Label>Accepter</Button.Label>
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="danger-soft"
-                    onPress={() =>
-                      respondToRequest.mutate({
-                        requestId: request.requestId,
-                        action: "reject",
-                      })
-                    }
-                    isDisabled={isPending}
-                  >
-                    <Button.Label>Refuser</Button.Label>
-                  </Button>
-                </View>
-              </View>
-            );
-          })}
-        </View>
-
-        <View className="gap-2 rounded-xl bg-secondary p-4">
-          <Text className="text-base font-semibold text-foreground">Mes amis</Text>
-
-          {friendsQuery.isLoading ? (
-            <View className="items-center py-2">
-              <Spinner size="sm" color="default" />
-            </View>
-          ) : null}
-
-          {friendsQuery.data?.length === 0 ? (
-            <Text className="text-sm text-muted-foreground">Tu n'as pas encore d'amis.</Text>
-          ) : null}
-
-          {friendsQuery.data?.map((friend) => (
-            <Link
-              key={friend.id}
-              href={{
-                pathname: "/(drawer)/users/[id]",
-                params: { id: String(friend.id) },
-              }}
-              asChild
-            >
-              <Pressable className="flex-row items-center gap-3 rounded-xl bg-background px-4 py-3">
-                <Image
-                  source={{ uri: friend.avatarUrl }}
-                  className="h-11 w-11 rounded-full bg-secondary"
-                />
-                <View className="flex-1">
-                  <Text className="text-sm font-medium text-foreground">{friend.username}</Text>
-                  <Text className="text-xs text-muted-foreground">Ouvrir le profil</Text>
-                </View>
-              </Pressable>
-            </Link>
-          ))}
-        </View>
-
-        <Text className="text-sm text-muted-foreground">Cherche un utilisateur pour lui envoyer une demande.</Text>
 
         {/* Barre de recherche */}
         <View className="flex-row gap-2 items-end">
@@ -270,6 +178,99 @@ export default function AmisScreen() {
             </View>
           );
         })}
+
+        <View className="gap-2 rounded-xl bg-secondary p-4">
+          <Text className="text-base font-semibold text-foreground">Demandes reçues</Text>
+
+          {pendingRequestsQuery.isLoading ? (
+            <View className="items-center py-2">
+              <Spinner size="sm" color="default" />
+            </View>
+          ) : null}
+
+          {pendingRequestsQuery.data?.length === 0 ? (
+            <Text className="text-sm text-muted-foreground">Aucune demande en attente.</Text>
+          ) : null}
+
+          {pendingRequestsQuery.data?.map((request) => {
+            const isPending =
+              respondToRequest.isPending && respondToRequest.variables?.requestId === request.requestId;
+
+            return (
+              <View key={request.requestId} className="flex-row items-center justify-between gap-3">
+                <Text className="text-sm text-foreground">{request.username}</Text>
+
+                <View className="flex-row gap-2">
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onPress={() =>
+                      respondToRequest.mutate({
+                        requestId: request.requestId,
+                        action: "accept",
+                      })
+                    }
+                    isDisabled={isPending}
+                  >
+                    <Button.Label>Accepter</Button.Label>
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="danger-soft"
+                    onPress={() =>
+                      respondToRequest.mutate({
+                        requestId: request.requestId,
+                        action: "reject",
+                      })
+                    }
+                    isDisabled={isPending}
+                  >
+                    <Button.Label>Refuser</Button.Label>
+                  </Button>
+                </View>
+              </View>
+            );
+          })}
+        </View>
+
+        <View className="gap-2 rounded-xl bg-secondary p-4">
+          <Text className="text-base font-semibold text-foreground">Mes amis</Text>
+
+          {friendsQuery.isLoading ? (
+            <View className="items-center py-2">
+              <Spinner size="sm" color="default" />
+            </View>
+          ) : null}
+
+          {friendsQuery.data?.length === 0 ? (
+            <Text className="text-sm text-muted-foreground">Tu n'as pas encore d'amis.</Text>
+          ) : null}
+
+          {friendsQuery.data?.map((friend) => (
+            <Link
+              key={friend.id}
+              href={{
+                pathname: "/(drawer)/users/[id]",
+                params: { id: String(friend.id) },
+              }}
+              asChild
+            >
+              <Pressable className="flex-row items-center gap-3 rounded-xl bg-background px-4 py-3">
+                <Image
+                  source={{ uri: friend.avatarUrl }}
+                  className="h-11 w-11 rounded-full bg-secondary"
+                />
+                <View className="flex-1">
+                  <Text className="text-sm font-medium text-foreground">{friend.username}</Text>
+                  <Text className="text-xs text-muted-foreground">Ouvrir le profil</Text>
+                </View>
+              </Pressable>
+            </Link>
+          ))}
+        </View>
+
+        
       </View>
     </Container>
   );

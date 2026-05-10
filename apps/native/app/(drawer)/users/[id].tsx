@@ -99,7 +99,7 @@ export default function UserProfileScreen() {
                 {relationLabel(profile.relationStatus)}
               </Text>
             </View>
-            <Text className="text-sm text-muted-foreground">
+            <Text className="text-sm text-foreground">
               {profile.canSeePrivateContent
                 ? "Tu vois ses recettes privées et ses enregistrements parce que vous êtes amis."
                 : "Tu vois seulement ses contenus publics. Deviens ami pour accéder au reste."}
@@ -109,11 +109,11 @@ export default function UserProfileScreen() {
 
         <View className="flex-row gap-3">
           <View className="flex-1 rounded-2xl bg-secondary p-4">
-            <Text className="text-xs uppercase tracking-wide text-muted-foreground">Recettes</Text>
+            <Text className="text-xs uppercase tracking-wide text-foreground">Recettes personelles</Text>
             <Text className="mt-1 text-2xl font-semibold text-foreground">{profile.recipes.length}</Text>
           </View>
           <View className="flex-1 rounded-2xl bg-secondary p-4">
-            <Text className="text-xs uppercase tracking-wide text-muted-foreground">Enregistrements</Text>
+            <Text className="text-xs uppercase tracking-wide text-foreground">Collections de recettes</Text>
             <Text className="mt-1 text-2xl font-semibold text-foreground">
               {profile.collections.length}
             </Text>
@@ -124,7 +124,7 @@ export default function UserProfileScreen() {
           <Text className="text-xl font-semibold text-foreground">Recettes visibles</Text>
 
           {!profile.recipes.length ? (
-            <Text className="text-sm text-muted-foreground">Aucune recette visible pour le moment.</Text>
+            <Text className="text-sm text-foreground">Aucune recette visible pour le moment.</Text>
           ) : null}
 
           <View className="flex-row flex-wrap">
@@ -156,7 +156,7 @@ export default function UserProfileScreen() {
                       />
 
                       <View className="p-3 gap-1">
-                        <Text className="text-xs text-muted-foreground">{recipe.prepTime} min</Text>
+                        <Text className="text-xs text-foreground">{recipe.prepTime} min</Text>
                         {recipe.showVisibilityBadge ? (
                           <View
                             className={`self-start rounded-full px-2 py-0.5 mb-1 ${recipe.isPublic ? "bg-success/20" : "bg-warning/20"}`}
@@ -189,7 +189,7 @@ export default function UserProfileScreen() {
             <Text className="text-xl font-semibold text-foreground">Enregistrements</Text>
 
             {!profile.collections.length ? (
-              <Text className="text-sm text-muted-foreground">
+              <Text className="text-sm text-foreground">
                 Cet utilisateur n'a pas encore créé d'enregistrement.
               </Text>
             ) : null}
@@ -198,7 +198,7 @@ export default function UserProfileScreen() {
               {profile.collections.map((collection) => (
                 <View key={collection.id} className="rounded-2xl bg-secondary px-4 py-3">
                   <Text className="text-base font-medium text-foreground">{collection.name}</Text>
-                  <Text className="text-xs text-muted-foreground">
+                  <Text className="text-xs text-foreground">
                     {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
                   </Text>
                 </View>
