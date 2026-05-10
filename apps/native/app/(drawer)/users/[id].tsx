@@ -151,7 +151,7 @@ export default function UserProfileScreen() {
                     <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
                       <Image
                         source={{ uri: imageUrl }}
-                        style={{ width: cardWidth, height: cardWidth }}
+                        style={{ width: cardWidth, height: cardWidth * 0.5625 }}
                         resizeMode="cover"
                       />
 
@@ -186,23 +186,58 @@ export default function UserProfileScreen() {
 
         {profile.canSeePrivateContent ? (
           <View className="gap-3">
-            <Text className="text-xl font-semibold text-foreground">Enregistrements</Text>
+            <Text className="text-xl font-semibold text-foreground">Collections</Text>
 
             {!profile.collections.length ? (
               <Text className="text-sm text-foreground">
-                Cet utilisateur n'a pas encore créé d'enregistrement.
+                Cet utilisateur n'a pas encore créé de collection.
               </Text>
             ) : null}
 
-            <View className="gap-2">
-              {profile.collections.map((collection) => (
-                <View key={collection.id} className="rounded-2xl bg-secondary px-4 py-3">
-                  <Text className="text-base font-medium text-foreground">{collection.name}</Text>
-                  <Text className="text-xs text-foreground">
-                    {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
-                  </Text>
-                </View>
-              ))}
+            <View className="flex-row flex-wrap">
+              {profile.collections.map((collection, index) => {
+                const isLastInRow = (index + 1) % columns === 0;
+                const imageUrl = collection.imageUrls?.[0] ?? FALLBACK_RECIPE_IMAGE;
+
+                return (
+                  <View
+                    key={collection.id}
+                    style={{
+                      width: cardWidth,
+                      marginRight: isLastInRow ? 0 : GAP,
+                      marginBottom: GAP,
+                    }}
+                  >
+                    <Link
+                      href={{
+                        pathname: "/(drawer)/collections/[id]",
+                        params: { id: String(collection.id) },
+                      }}
+                      asChild
+                    >
+                      <Card variant="secondary" className="overflow-hidden relative" style={{ width: cardWidth, height: cardWidth }}>
+                        <Image
+                          source={{ uri: imageUrl }}
+                          style={{ width: cardWidth, height: cardWidth }}
+                          resizeMode="cover"
+                        />
+
+                        <View
+                          className="absolute bottom-0 left-0 right-0 items-start justify-end bg-black/50 px-3 py-3"
+                          style={{ height: "30%" }}
+                        >
+                          <Text className="text-sm font-semibold text-white" numberOfLines={1}>
+                            {collection.name}
+                          </Text>
+                          <Text className="text-xs text-white/80">
+                            {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
+                          </Text>
+                        </View>
+                      </Card>
+                    </Link>
+                  </View>
+                );
+              })}
             </View>
           </View>
         ) : null}

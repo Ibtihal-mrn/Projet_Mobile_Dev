@@ -266,6 +266,21 @@ const userRouter = {
               _count: {
                 select: { recipes: true },
               },
+              recipes: {
+                select: {
+                  recipe: {
+                    select: {
+                      imageUrl: true,
+                    },
+                  },
+                },
+                orderBy: {
+                  recipe: {
+                    createdAt: "desc",
+                  },
+                },
+                take: 4,
+              },
             },
           })
         : [];
@@ -285,6 +300,9 @@ const userRouter = {
           name: collection.name,
           createdAt: collection.createdAt,
           recipesCount: collection._count.recipes,
+          imageUrls: collection.recipes
+            .map((item) => item.recipe.imageUrl)
+            .filter((url) => url !== null),
         })),
       };
     }),
