@@ -12,10 +12,20 @@ const FALLBACK_RECIPE_IMAGE =
 export default function CollectionDetailsScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from, userId } = useLocalSearchParams<{ id: string; from?: string; userId?: string }>();
 
   const collectionId = Number(id);
   const hasValidId = Number.isInteger(collectionId) && collectionId > 0;
+
+  // Déterminer le chemin de retour
+  const getBackPath = () => {
+    if (from === "profile" && userId) {
+      return () => router.push(`/(drawer)/users/${userId}`);
+    }
+    return () => router.push("/(drawer)/(tabs)/three");
+  };
+
+  const handleBack = getBackPath();
 
   const collectionQuery = useQuery({
     ...orpc.collection.byId.queryOptions({
@@ -34,7 +44,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} className="mt-4 mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center">
@@ -48,7 +58,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} className="mt-4 mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center">
@@ -67,7 +77,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} className="mt-4 mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center gap-2">
@@ -84,7 +94,7 @@ export default function CollectionDetailsScreen() {
     <Container className="p-6">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+      <Pressable onPress={handleBack} className="mt-4 mb-2">
         <Text className="text-base text-blue-500">← Retour</Text>
       </Pressable>
 
