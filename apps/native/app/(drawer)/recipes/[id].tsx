@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Button, Input, Spinner, TextField } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Alert, Image, Text, View } from "react-native";
+import { Image, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
@@ -19,6 +19,8 @@ export default function RecipeDetailsScreen() {
   const recipeId = Number(id);
   const hasValidId = Number.isInteger(recipeId) && recipeId > 0;
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [recipeIdToDelete, setRecipeIdToDelete] = useState<number | null>(null);
   const [servings, setServings] = useState(2);
   const [isGeneratingList, setIsGeneratingList] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
@@ -31,7 +33,7 @@ export default function RecipeDetailsScreen() {
     orpc.recipe.delete.mutationOptions({
       onSuccess: async () => {
         setDeleteError(null);
-        await queryClient.invalidateQueries({ queryKey: orpc.recipe.list.queryKey() });
+        await queryClient.invalidateQueries();
         router.replace("/(drawer)");
       },
       onError: (error) => {
@@ -53,23 +55,8 @@ export default function RecipeDetailsScreen() {
   );
 
   function confirmDelete(recipeToDeleteId: number) {
-    Alert.alert(
-      "Supprimer la recette",
-      "Cette action est définitive. Voulez-vous continuer ?",
-      [
-        {
-          text: "Annuler",
-          style: "cancel",
-        },
-        {
-          text: "Supprimer",
-          style: "destructive",
-          onPress: () => {
-            deleteRecipe.mutate({ id: recipeToDeleteId });
-          },
-        },
-      ],
-    );
+    setRecipeIdToDelete(recipeToDeleteId);
+    setIsDeleteConfirmOpen(true);
   }
 
   // Récupère les détails de la recette depuis l'API
@@ -290,6 +277,43 @@ export default function RecipeDetailsScreen() {
                   <Button.Label>Supprimer</Button.Label>
                 )}
               </Button>
+            </View>
+          ) : null}
+
+          {isDeleteConfirmOpen ? (
+            <View className="gap-3 rounded-2xl border border-danger/30 bg-danger/10 p-4">
+              <Text className="text-base font-semibold text-foreground">Supprimer la recette ?</Text>
+              <Text className="text-sm text-foreground">
+                Cette action est definitive. La recette sera supprimée pour de bon.
+              </Text>
+
+              <View className="flex-row gap-2">
+                <Button
+                  variant="outline"
+                  className="self-start"
+                  onPress={() => setIsDeleteConfirmOpen(false)}
+                  isDisabled={deleteRecipe.isPending}
+                >
+                  <Button.Label>Annuler</Button.Label>
+                </Button>
+
+                <Button
+                  className="self-start"
+                  onPress={() => {
+                    if (recipeIdToDelete) {
+                      setIsDeleteConfirmOpen(false);
+                      deleteRecipe.mutate({ id: recipeIdToDelete });
+                    }
+                  }}
+                  isDisabled={deleteRecipe.isPending}
+                >
+                  {deleteRecipe.isPending ? (
+                    <Spinner size="sm" color="default" />
+                  ) : (
+                    <Button.Label>Confirmer</Button.Label>
+                  )}
+                </Button>
+              </View>
             </View>
           ) : null}
         </View>

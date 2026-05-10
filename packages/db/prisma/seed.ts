@@ -117,7 +117,8 @@ const recipesByAuthor: Record<string, SeedRecipe[]> = {
     },
     {
       title: "Riz au lait à la vanille",
-      description: "Un dessert crémeux et réconfortant, parfait froid ou tiède.",
+      description:
+        "Un dessert crémeux et réconfortant, parfait froid ou tiède.",
       prepTime: 50,
       ingredients: [
         { name: "riz rond", quantity: "180", unit: "g" },
@@ -377,7 +378,10 @@ async function resetSeedData(authorEmails: string[]) {
   });
   await prisma.follow.deleteMany({
     where: {
-      OR: [{ followerId: { in: authorIds } }, { followingId: { in: authorIds } }],
+      OR: [
+        { followerId: { in: authorIds } },
+        { followingId: { in: authorIds } },
+      ],
     },
   });
 }
@@ -408,7 +412,9 @@ async function seedRecipe(authorEmail: string, recipe: SeedRecipe) {
     throw new Error(`Author not found for ${authorEmail}`);
   }
 
-  const ingredientNames = recipe.ingredients.map((ingredient) => ingredient.name.toLowerCase());
+  const ingredientNames = recipe.ingredients.map((ingredient) =>
+    ingredient.name.toLowerCase(),
+  );
 
   const createdIngredients = await Promise.all(
     ingredientNames.map((name) =>
@@ -424,7 +430,8 @@ async function seedRecipe(authorEmail: string, recipe: SeedRecipe) {
     data: {
       title: recipe.title,
       description: recipe.description,
-      imageUrl: recipe.imageUrl ?? recipeImageByTitle[recipe.title] ?? DEFAULT_IMAGE,
+      imageUrl:
+        recipe.imageUrl ?? recipeImageByTitle[recipe.title] ?? DEFAULT_IMAGE,
       isPublic: true,
       prepTime: recipe.prepTime,
       authorId: author.id,
@@ -459,7 +466,9 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${Object.values(recipesByAuthor).flat().length} public recipes.`);
+  console.log(
+    `Seeded ${Object.values(recipesByAuthor).flat().length} public recipes.`,
+  );
 }
 
 main()
