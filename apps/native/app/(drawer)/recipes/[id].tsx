@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import { Button, Input, Spinner, TextField } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Image, Text, View } from "react-native";
+import { Alert, Image, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
@@ -228,6 +228,7 @@ export default function RecipeDetailsScreen() {
   }
 
   const imageUrl = recipe.imageUrl ?? FALLBACK_RECIPE_IMAGE;
+  const authorLabel = recipe.author?.username ?? recipe.authorName ?? "Auteur inconnu";
 
   return (
     <Container className="pb-6">
@@ -238,6 +239,7 @@ export default function RecipeDetailsScreen() {
       <View className="px-6 pt-5 gap-5">
         <View className="gap-2">
           <Text className="text-3xl font-semibold text-foreground">{recipe.title}</Text>
+          <Text className="text-sm font-medium text-foreground">Auteur: {authorLabel}</Text>
           <Text className="text-base text-foreground">{recipe.description}</Text>
           <Text className="text-sm text-foreground">Préparation: {recipe.prepTime} min</Text>
           <Text className="text-sm text-foreground">Portions de base: {baseServings}</Text>

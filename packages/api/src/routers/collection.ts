@@ -55,6 +55,10 @@ const collectionIdInput = z.object({
   id: z.number().int().positive(),
 });
 
+function isGenericRecipeAuthor(email?: string | null) {
+  return Boolean(email?.endsWith("@example.com"));
+}
+
 const addRecipeInput = z.object({
   collectionId: z.number().int().positive(),
   recipeId: z.number().int().positive(),
@@ -148,6 +152,8 @@ const collectionRouter = {
                   author: {
                     select: {
                       passwordHash: true,
+                      username: true,
+                      email: true,
                     },
                   },
                 },
@@ -167,6 +173,9 @@ const collectionRouter = {
         .map((entry) => entry.recipe)
         .map(({ author, ...recipe }) => ({
           ...recipe,
+          authorName: isGenericRecipeAuthor(author.email)
+            ? null
+            : author.username,
           showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
         }));
 

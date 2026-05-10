@@ -83,6 +83,10 @@ function baseUsernameFromEmail(email: string) {
   );
 }
 
+function isGenericRecipeAuthor(email?: string | null) {
+  return Boolean(email?.endsWith("@example.com"));
+}
+
 async function findAppUserBySessionEmail(email?: string) {
   if (!email) {
     return null;
@@ -139,12 +143,13 @@ export default {
         imageUrl: true,
         isPublic: true,
         prepTime: true,
-        author: { select: { passwordHash: true } },
+        author: { select: { username: true, email: true, passwordHash: true } },
       },
     });
 
     return rows.map(({ author, ...rest }) => ({
       ...rest,
+      authorName: isGenericRecipeAuthor(author.email) ? null : author.username,
       showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
     }));
   }),
@@ -233,12 +238,17 @@ export default {
           imageUrl: true,
           isPublic: true,
           prepTime: true,
-          author: { select: { passwordHash: true } },
+          author: {
+            select: { username: true, email: true, passwordHash: true },
+          },
         },
       });
 
       return rows.map(({ author, ...rest }) => ({
         ...rest,
+        authorName: isGenericRecipeAuthor(author.email)
+          ? null
+          : author.username,
         showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
       }));
     }),
@@ -269,12 +279,13 @@ export default {
         imageUrl: true,
         isPublic: true,
         prepTime: true,
-        author: { select: { passwordHash: true } },
+        author: { select: { username: true, email: true, passwordHash: true } },
       },
     });
 
     return rows.map(({ author, ...rest }) => ({
       ...rest,
+      authorName: isGenericRecipeAuthor(author.email) ? null : author.username,
       showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
     }));
   }),
@@ -292,7 +303,14 @@ export default {
           ...accessWhereForViewer(appUser?.id),
         },
         include: {
-          author: { select: { id: true, username: true, passwordHash: true } },
+          author: {
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              passwordHash: true,
+            },
+          },
           steps: { orderBy: { stepOrder: "asc" } },
           ingredients: {
             include: { ingredient: true },
@@ -311,6 +329,9 @@ export default {
       return {
         ...recipe,
         author: safeAuthor,
+        authorName: isGenericRecipeAuthor(recipe.author.email)
+          ? null
+          : recipe.author.username,
         isOwner: appUser?.id === recipe.authorId,
         showVisibilityBadge,
       };

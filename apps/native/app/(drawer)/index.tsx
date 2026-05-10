@@ -97,6 +97,11 @@ export default function Home() {
                       <Card.Title className="text-base font-semibold text-foreground" numberOfLines={1}>
                         {recipe.title}
                       </Card.Title>
+                      {recipe.authorName ? (
+                        <Text className="text-xs text-foreground" numberOfLines={1}>
+                          Par {recipe.authorName}
+                        </Text>
+                      ) : null}
                       <Text className="text-xs text-foreground" numberOfLines={2}>
                         {recipe.description}
                       </Text>
