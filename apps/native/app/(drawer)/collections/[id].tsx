@@ -1,7 +1,7 @@
-import { Link, Stack, useLocalSearchParams } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "heroui-native";
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
@@ -10,6 +10,7 @@ const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
 
 export default function CollectionDetailsScreen() {
+  const router = useRouter();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
 
@@ -32,7 +33,10 @@ export default function CollectionDetailsScreen() {
   if (!hasValidId) {
     return (
       <Container className="p-6">
-        <Stack.Screen options={{ title: "Collection" }} />
+        <Stack.Screen options={{ headerShown: false }} />
+        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+          <Text className="text-base text-blue-500">← Retour</Text>
+        </Pressable>
         <View className="flex-1 items-center justify-center">
           <Text className="text-lg text-foreground">Collection introuvable.</Text>
         </View>
@@ -43,7 +47,10 @@ export default function CollectionDetailsScreen() {
   if (collectionQuery.isLoading) {
     return (
       <Container className="p-6">
-        <Stack.Screen options={{ title: "Collection" }} />
+        <Stack.Screen options={{ headerShown: false }} />
+        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+          <Text className="text-base text-blue-500">← Retour</Text>
+        </Pressable>
         <View className="flex-1 items-center justify-center">
           <Text className="text-base text-foreground">Chargement de la collection...</Text>
         </View>
@@ -59,7 +66,10 @@ export default function CollectionDetailsScreen() {
 
     return (
       <Container className="p-6">
-        <Stack.Screen options={{ title: "Collection" }} />
+        <Stack.Screen options={{ headerShown: false }} />
+        <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+          <Text className="text-base text-blue-500">← Retour</Text>
+        </Pressable>
         <View className="flex-1 items-center justify-center gap-2">
           <Text className="text-lg text-foreground">Collection introuvable.</Text>
           <Text className="text-sm text-danger">{message}</Text>
@@ -72,7 +82,11 @@ export default function CollectionDetailsScreen() {
 
   return (
     <Container className="p-6">
-      <Stack.Screen options={{ title: collection.name }} />
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <Pressable onPress={() => router.push("/(drawer)/(tabs)/three")} className="mt-4 mb-2">
+        <Text className="text-base text-blue-500">← Retour</Text>
+      </Pressable>
 
       <View className="gap-4 pb-6">
         <Text className="text-3xl font-semibold text-foreground">{collection.name}</Text>
