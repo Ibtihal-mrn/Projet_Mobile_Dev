@@ -255,36 +255,6 @@ const userRouter = {
         },
       });
 
-      const collections = canSeePrivateContent
-        ? await prisma.collection.findMany({
-            where: { userId: targetUser.id },
-            orderBy: { createdAt: "desc" },
-            select: {
-              id: true,
-              name: true,
-              createdAt: true,
-              _count: {
-                select: { recipes: true },
-              },
-              recipes: {
-                select: {
-                  recipe: {
-                    select: {
-                      imageUrl: true,
-                    },
-                  },
-                },
-                orderBy: {
-                  recipe: {
-                    createdAt: "desc",
-                  },
-                },
-                take: 4,
-              },
-            },
-          })
-        : [];
-
       return {
         id: targetUser.id,
         username: targetUser.username,
@@ -295,15 +265,7 @@ const userRouter = {
           ...recipe,
           showVisibilityBadge: author.passwordHash === "managed-by-better-auth",
         })),
-        collections: collections.map((collection) => ({
-          id: collection.id,
-          name: collection.name,
-          createdAt: collection.createdAt,
-          recipesCount: collection._count.recipes,
-          imageUrls: collection.recipes
-            .map((item) => item.recipe.imageUrl)
-            .filter((url) => url !== null),
-        })),
+        collections: [],
       };
     }),
 

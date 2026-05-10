@@ -145,14 +145,17 @@ const collectionRouter = {
           id: input.id,
           userId: appUser.id,
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          createdAt: true,
           recipes: {
             orderBy: {
               recipe: {
                 createdAt: "desc",
               },
             },
-            include: {
+            select: {
               recipe: {
                 select: {
                   id: true,

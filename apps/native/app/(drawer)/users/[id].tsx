@@ -115,7 +115,7 @@ export default function UserProfileScreen() {
             </View>
             <Text className="text-sm text-foreground">
               {profile.canSeePrivateContent
-                ? "Tu vois ses recettes privées et ses enregistrements parce que vous êtes amis."
+                ? "Tu vois ses recettes privées parce que vous êtes amis."
                 : "Tu vois seulement ses contenus publics. Deviens ami pour accéder au reste."}
             </Text>
           </View>
@@ -126,19 +126,13 @@ export default function UserProfileScreen() {
             <Text className="text-xs uppercase tracking-wide text-foreground">Recettes personelles</Text>
             <Text className="mt-1 text-2xl font-semibold text-foreground">{profile.recipes.length}</Text>
           </View>
-          <View className="flex-1 rounded-2xl bg-secondary p-4">
-            <Text className="text-xs uppercase tracking-wide text-foreground">Collections de recettes</Text>
-            <Text className="mt-1 text-2xl font-semibold text-foreground">
-              {profile.collections.length}
-            </Text>
-          </View>
         </View>
 
         <View className="gap-3">
-          <Text className="text-xl font-semibold text-foreground">Recettes visibles</Text>
+
 
           {!profile.recipes.length ? (
-            <Text className="text-sm text-foreground">Aucune recette visible pour le moment.</Text>
+            <Text className="text-sm text-foreground">Aucune recette créée pour le moment.</Text>
           ) : null}
 
           <View className="flex-row flex-wrap">
@@ -197,64 +191,6 @@ export default function UserProfileScreen() {
             })}
           </View>
         </View>
-
-        {profile.canSeePrivateContent ? (
-          <View className="gap-3">
-            <Text className="text-xl font-semibold text-foreground">Collections</Text>
-
-            {!profile.collections.length ? (
-              <Text className="text-sm text-foreground">
-                Cet utilisateur n'a pas encore créé de collection.
-              </Text>
-            ) : null}
-
-            <View className="flex-row flex-wrap">
-              {profile.collections.map((collection, index) => {
-                const isLastInRow = (index + 1) % columns === 0;
-                const imageUrl = collection.imageUrls?.[0] ?? FALLBACK_RECIPE_IMAGE;
-
-                return (
-                  <View
-                    key={collection.id}
-                    style={{
-                      width: cardWidth,
-                      marginRight: isLastInRow ? 0 : GAP,
-                      marginBottom: GAP,
-                    }}
-                  >
-                    <Link
-                      href={{
-                        pathname: "/(drawer)/collections/[id]",
-                        params: { id: String(collection.id), from: "profile", userId: String(profile.id) },
-                      }}
-                      asChild
-                    >
-                      <Card variant="secondary" className="overflow-hidden relative" style={{ width: cardWidth, height: cardWidth }}>
-                        <Image
-                          source={{ uri: imageUrl }}
-                          style={{ width: cardWidth, height: cardWidth }}
-                          resizeMode="cover"
-                        />
-
-                        <View
-                          className="absolute bottom-0 left-0 right-0 items-start justify-end bg-black/50 px-3 py-3"
-                          style={{ height: "30%" }}
-                        >
-                          <Text className="text-sm font-semibold text-white" numberOfLines={1}>
-                            {collection.name}
-                          </Text>
-                          <Text className="text-xs text-white/80">
-                            {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
-                          </Text>
-                        </View>
-                      </Card>
-                    </Link>
-                  </View>
-                );
-              })}
-            </View>
-          </View>
-        ) : null}
       </View>
     </Container>
   );
