@@ -83,7 +83,10 @@ function avatarUrlFromUsername(username: string) {
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=0f766e&color=ffffff&size=256&bold=true&format=png`;
 }
 
-async function getRelationStatus(currentAppUserId: number, targetAppUserId: number) {
+async function getRelationStatus(
+  currentAppUserId: number,
+  targetAppUserId: number,
+) {
   if (currentAppUserId === targetAppUserId) {
     return "self" as const;
   }
@@ -228,8 +231,12 @@ const userRouter = {
         });
       }
 
-      const relationStatus = await getRelationStatus(currentAppUser.id, targetUser.id);
-      const canSeePrivateContent = relationStatus === "self" || relationStatus === "friend";
+      const relationStatus = await getRelationStatus(
+        currentAppUser.id,
+        targetUser.id,
+      );
+      const canSeePrivateContent =
+        relationStatus === "self" || relationStatus === "friend";
 
       const recipes = await prisma.recipe.findMany({
         where: {
