@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as My_recipesRouteImport } from './routes/my_recipes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CollectionsRouteImport } from './routes/collections'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmisRouteImport } from './routes/amis'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CollectionsSplatRouteImport } from './routes/collections/$'
@@ -31,6 +32,11 @@ const LoginRoute = LoginRouteImport.update({
 const CollectionsRoute = CollectionsRouteImport.update({
   id: '/collections',
   path: '/collections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AmisRoute = AmisRouteImport.update({
@@ -62,6 +68,7 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/amis': typeof AmisRoute
+  '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/amis': typeof AmisRoute
+  '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/amis': typeof AmisRoute
+  '/auth': typeof AuthRoute
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/amis'
+    | '/auth'
     | '/collections'
     | '/login'
     | '/my_recipes'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/amis'
+    | '/auth'
     | '/collections'
     | '/login'
     | '/my_recipes'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/amis'
+    | '/auth'
     | '/collections'
     | '/login'
     | '/my_recipes'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AmisRoute: typeof AmisRoute
+  AuthRoute: typeof AuthRoute
   CollectionsRoute: typeof CollectionsRouteWithChildren
   LoginRoute: typeof LoginRoute
   My_recipesRoute: typeof My_recipesRoute
@@ -154,6 +167,13 @@ declare module '@tanstack/react-router' {
       path: '/collections'
       fullPath: '/collections'
       preLoaderRoute: typeof CollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/amis': {
@@ -209,6 +229,7 @@ const CollectionsRouteWithChildren = CollectionsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AmisRoute: AmisRoute,
+  AuthRoute: AuthRoute,
   CollectionsRoute: CollectionsRouteWithChildren,
   LoginRoute: LoginRoute,
   My_recipesRoute: My_recipesRoute,

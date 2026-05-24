@@ -7,31 +7,19 @@ import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
 import { queryClient } from "@/utils/orpc";
+import { useAuth } from "@my-app/hooks";
+import { orpc } from "@/utils/orpc";
 
 export default function AuthScreen() {
-  const { data: session, isPending } = authClient.useSession();
-  const [showSignIn, setShowSignIn] = useState(false);
-  const [logoutError, setLogoutError] = useState<string | null>(null);
-  const [isSigningOut, setIsSigningOut] = useState(false);
-
-  async function handleSignOut() {
-    try {
-      setLogoutError(null);
-      setIsSigningOut(true);
-
-      await authClient.signOut({
-        fetchOptions: {
-          onSuccess: async () => {
-            await queryClient.invalidateQueries();
-          },
-        },
-      });
-    } catch (error) {
-      setLogoutError(error instanceof Error ? error.message : "La déconnexion a échoué.");
-    } finally {
-      setIsSigningOut(false);
-    }
-  }
+  const {
+    session,
+    isPending,
+    showSignIn,
+    setShowSignIn,
+    logoutError,
+    isSigningOut,
+    handleSignOut,
+  } = useAuth({ orpc, authClient, queryClient });
 
   if (isPending) {
     return (
@@ -52,7 +40,7 @@ export default function AuthScreen() {
       <Container className="p-6">
         <View className="gap-4 pb-8">
           <Text className="text-3xl font-semibold text-foreground">Mon compte</Text>
-          <Text className="text-sm text-muted-foreground">
+          <Text className="text-sm text-foreground">
             Tu es connecté(e) et peux créer tes recettes depuis l'application mobile.
           </Text>
 
@@ -83,7 +71,7 @@ export default function AuthScreen() {
     <Container className="p-6">
       <View className="gap-4 pb-8">
         <Text className="text-3xl font-semibold text-foreground">Identification</Text>
-        <Text className="text-sm text-muted-foreground">
+        <Text className="text-sm text-foreground">
           Connecte-toi ou crée un compte pour publier et gérer tes recettes.
         </Text>
 

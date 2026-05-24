@@ -8,6 +8,7 @@ export default function Header() {
     { to: "/my_recipes", label: "Mes recettes" },
     { to: "/collections", label: "Collections" },
     { to: "/amis", label: "Amis" },
+    { to : "/auth", label: "Mon compte" },
   ] as const;
 
   return (

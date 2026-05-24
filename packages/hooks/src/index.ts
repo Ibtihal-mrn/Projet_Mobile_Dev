@@ -9,3 +9,6 @@ export type { CollectionHookDeps } from "./tabs/collection";
 
 export { useHomePage } from "./home_page";
 export type { HomePageHookDeps } from "./home_page";
+
+export {useAuth} from "./auth";
+export type {AuthHookDeps} from "./auth";
