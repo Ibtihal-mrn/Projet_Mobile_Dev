@@ -9,6 +9,7 @@ export default function Header() {
     { to: "/collections", label: "Collections" },
     { to: "/amis", label: "Amis" },
     { to : "/auth", label: "Mon compte" },
+    { to: "/search", label: "Recherche" },
   ] as const;
 
   return (

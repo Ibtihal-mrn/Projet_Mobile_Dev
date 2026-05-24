@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as My_recipesRouteImport } from './routes/my_recipes'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as CollectionsRouteImport } from './routes/collections'
@@ -19,6 +20,11 @@ import { Route as CollectionsSplatRouteImport } from './routes/collections/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const My_recipesRoute = My_recipesRouteImport.update({
   id: '/my_recipes',
   path: '/my_recipes',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
+  '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
+  '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
   '/my_recipes': typeof My_recipesRoute
+  '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
@@ -108,6 +117,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/login'
     | '/my_recipes'
+    | '/search'
     | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -119,6 +129,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/login'
     | '/my_recipes'
+    | '/search'
     | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -130,6 +141,7 @@ export interface FileRouteTypes {
     | '/collections'
     | '/login'
     | '/my_recipes'
+    | '/search'
     | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
@@ -142,12 +154,20 @@ export interface RootRouteChildren {
   CollectionsRoute: typeof CollectionsRouteWithChildren
   LoginRoute: typeof LoginRoute
   My_recipesRoute: typeof My_recipesRoute
+  SearchRoute: typeof SearchRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/my_recipes': {
       id: '/my_recipes'
       path: '/my_recipes'
@@ -233,6 +253,7 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsRoute: CollectionsRouteWithChildren,
   LoginRoute: LoginRoute,
   My_recipesRoute: My_recipesRoute,
+  SearchRoute: SearchRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
