@@ -1,5 +1,4 @@
 import { Link } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "heroui-native";
 import { Image, Text, View, useWindowDimensions } from "react-native";
 
@@ -8,29 +7,20 @@ import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
-
-const FALLBACK_RECIPE_IMAGE =
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
+import { useMyRecipesPage } from "@my-app/hooks";
 
 export default function Home() {
   const { width } = useWindowDimensions();
-  const { data: session } = authClient.useSession();
-
-  // Récupère uniquement les recettes du compte connecté
-  const recipes = useQuery({
-    ...orpc.recipe.mine.queryOptions(),
-    enabled: Boolean(session?.user),
-  });
-  const recipesErrorMessage =
-    recipes.error instanceof Error ? recipes.error.message : "Impossible de charger les recettes.";
+  const {
+    session,
+    recipes,
+    recipesErrorMessage,
+    fallbackRecipeImage,
+  } = useMyRecipesPage({ orpc, authClient });
 
   const SCREEN_PADDING = 24;
   const GAP = 12;
-
-  // 1 colonne sur un petit écran, 2 sur mobile, 3 sur tablette
   const columns = width < 420 ? 1 : width < 768 ? 2 : 3;
-
-  // largeur dispo = écran - padding - gap entre les cartes
   const availableWidth = width - SCREEN_PADDING * 2 - GAP * (columns - 1);
   const cardWidth = availableWidth / columns;
 
@@ -85,7 +75,7 @@ export default function Home() {
 
           {recipes.data?.map((recipe, index) => {
             const isLastInRow = (index + 1) % columns === 0;
-            const imageUrl = recipe.imageUrl ?? FALLBACK_RECIPE_IMAGE;
+            const imageUrl = recipe.imageUrl ?? fallbackRecipeImage;
 
             return (
               <View

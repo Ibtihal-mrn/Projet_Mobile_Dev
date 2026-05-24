@@ -2,19 +2,19 @@ import { Link } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "heroui-native";
 import { Image, Text, View, useWindowDimensions } from "react-native";
-
+import {authClient} from "@/lib/auth-client";
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
+import { useHomePage } from "@my-app/hooks";
 
-const FALLBACK_RECIPE_IMAGE =
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
-
-export default function Home() {
+export default function HomePageScreen() {
   const { width } = useWindowDimensions();
-  // Récupère la liste des recettes depuis l'API
-  const recipes = useQuery(orpc.recipe.list.queryOptions());
-  const recipesErrorMessage =
-    recipes.error instanceof Error ? recipes.error.message : "Impossible de charger les recettes.";
+  const {
+    session,
+    recipes,
+    recipesErrorMessage,
+    fallbackRecipeImage: FALLBACK_RECIPE_IMAGE,    
+  } = useHomePage({ orpc, authClient });
 
   const SCREEN_PADDING = 24;
   const GAP = 12;

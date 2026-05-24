@@ -1,7 +1,6 @@
 import { Link } from "expo-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Input, Spinner, TextField, Card } from "heroui-native";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Text, View, Image, useWindowDimensions } from "react-native";
 
 import { Container } from "@/components/container";
@@ -9,15 +8,21 @@ import { SignIn } from "@/components/sign-in";
 import { SignUp } from "@/components/sign-up";
 import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
-
-const FALLBACK_COLLECTION_IMAGE =
-  "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&w=500&q=60";
+import { useCollectionPage } from "@my-app/hooks";
 
 export default function CollectionsScreen() {
   const { width } = useWindowDimensions();
-  const { data: session } = authClient.useSession();
-  const [newCollectionName, setNewCollectionName] = useState("");
-  const [actionError, setActionError] = useState<string | null>(null);
+  const {
+    session,
+    collectionsQuery,
+    collectionsErrorMessage,
+    actionError,
+    newCollectionName,
+    setNewCollectionName,
+    createCollection,
+    createCollectionMutation,
+    fallbackRecipeImage,
+  } = useCollectionPage({ orpc, authClient, queryClient });
 
   const SCREEN_PADDING = 24;
   const GAP = 12;
@@ -27,46 +32,6 @@ export default function CollectionsScreen() {
 
   const availableWidth = width - SCREEN_PADDING * 2 - GAP * (columns - 1);
   const cardWidth = availableWidth / columns;
-
-  const collectionsQuery = useQuery({
-    ...orpc.collection.listMine.queryOptions(),
-    enabled: Boolean(session?.user),
-  });
-
-  const createCollectionMutation = useMutation(
-    orpc.collection.create.mutationOptions({
-      onSuccess: async () => {
-        setActionError(null);
-        setNewCollectionName("");
-        await queryClient.invalidateQueries({
-          queryKey: orpc.collection.listMine.queryKey(),
-        });
-      },
-      onError: (error) => {
-        setActionError(error.message || "Impossible de creer la collection.");
-      },
-    }),
-  );
-
-  const collectionsErrorMessage = useMemo(() => {
-    if (!collectionsQuery.isError) {
-      return null;
-    }
-
-    return collectionsQuery.error instanceof Error
-      ? collectionsQuery.error.message
-      : "Impossible de charger les collections.";
-  }, [collectionsQuery.error, collectionsQuery.isError]);
-
-  function createCollection() {
-    const trimmed = newCollectionName.trim();
-    if (!trimmed) {
-      setActionError("Le nom de la collection est obligatoire.");
-      return;
-    }
-
-    createCollectionMutation.mutate({ name: trimmed });
-  }
 
   if (!session?.user) {
     return (
@@ -141,7 +106,7 @@ export default function CollectionsScreen() {
             <View className="flex-row flex-wrap">
               {collectionsQuery.data.map((collection, index) => {
                 const isLastInRow = (index + 1) % columns === 0;
-                const collectionImage = collection.imageUrls?.[0] ?? FALLBACK_COLLECTION_IMAGE;
+                const collectionImage = collection.imageUrls?.[0] ?? fallbackRecipeImage;
 
                 return (
                   <View

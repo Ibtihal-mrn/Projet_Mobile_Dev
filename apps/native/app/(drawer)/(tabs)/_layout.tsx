@@ -38,7 +38,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="amis"
         options={{
           title: "Amis",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -47,7 +47,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="three"
+        name="collections"
         options={{
           title: "Collections",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
@@ -56,7 +56,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="four"
+        name="liste-de-courses"
         options={{
           title: "Liste de courses",
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (

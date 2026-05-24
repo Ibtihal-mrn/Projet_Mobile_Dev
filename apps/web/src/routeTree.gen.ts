@@ -9,22 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TwoRouteImport } from './routes/two'
-import { Route as ThreeRouteImport } from './routes/three'
+import { Route as My_recipesRouteImport } from './routes/my_recipes'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CollectionsRouteImport } from './routes/collections'
+import { Route as AmisRouteImport } from './routes/amis'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CollectionsSplatRouteImport } from './routes/collections/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
-const TwoRoute = TwoRouteImport.update({
-  id: '/two',
-  path: '/two',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ThreeRoute = ThreeRouteImport.update({
-  id: '/three',
-  path: '/three',
+const My_recipesRoute = My_recipesRouteImport.update({
+  id: '/my_recipes',
+  path: '/my_recipes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -32,15 +28,25 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const CollectionsRoute = CollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AmisRoute = AmisRouteImport.update({
+  id: '/amis',
+  path: '/amis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsSplatRoute = CollectionsSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => CollectionsRoute,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -55,29 +61,32 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/amis': typeof AmisRoute
+  '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
-  '/three': typeof ThreeRoute
-  '/two': typeof TwoRoute
+  '/my_recipes': typeof My_recipesRoute
+  '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/amis': typeof AmisRoute
+  '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
-  '/three': typeof ThreeRoute
-  '/two': typeof TwoRoute
+  '/my_recipes': typeof My_recipesRoute
+  '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/amis': typeof AmisRoute
+  '/collections': typeof CollectionsRouteWithChildren
   '/login': typeof LoginRoute
-  '/three': typeof ThreeRoute
-  '/two': typeof TwoRoute
+  '/my_recipes': typeof My_recipesRoute
+  '/collections/$': typeof CollectionsSplatRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -85,56 +94,52 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
+    | '/amis'
+    | '/collections'
     | '/login'
-    | '/three'
-    | '/two'
+    | '/my_recipes'
+    | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
+    | '/amis'
+    | '/collections'
     | '/login'
-    | '/three'
-    | '/two'
+    | '/my_recipes'
+    | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
+    | '/amis'
+    | '/collections'
     | '/login'
-    | '/three'
-    | '/two'
+    | '/my_recipes'
+    | '/collections/$'
     | '/api/auth/$'
     | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  AmisRoute: typeof AmisRoute
+  CollectionsRoute: typeof CollectionsRouteWithChildren
   LoginRoute: typeof LoginRoute
-  ThreeRoute: typeof ThreeRoute
-  TwoRoute: typeof TwoRoute
+  My_recipesRoute: typeof My_recipesRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/two': {
-      id: '/two'
-      path: '/two'
-      fullPath: '/two'
-      preLoaderRoute: typeof TwoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/three': {
-      id: '/three'
-      path: '/three'
-      fullPath: '/three'
-      preLoaderRoute: typeof ThreeRouteImport
+    '/my_recipes': {
+      id: '/my_recipes'
+      path: '/my_recipes'
+      fullPath: '/my_recipes'
+      preLoaderRoute: typeof My_recipesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -144,11 +149,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/collections': {
+      id: '/collections'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof CollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/amis': {
+      id: '/amis'
+      path: '/amis'
+      fullPath: '/amis'
+      preLoaderRoute: typeof AmisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -157,6 +169,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/collections/$': {
+      id: '/collections/$'
+      path: '/$'
+      fullPath: '/collections/$'
+      preLoaderRoute: typeof CollectionsSplatRouteImport
+      parentRoute: typeof CollectionsRoute
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -175,12 +194,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CollectionsRouteChildren {
+  CollectionsSplatRoute: typeof CollectionsSplatRoute
+}
+
+const CollectionsRouteChildren: CollectionsRouteChildren = {
+  CollectionsSplatRoute: CollectionsSplatRoute,
+}
+
+const CollectionsRouteWithChildren = CollectionsRoute._addFileChildren(
+  CollectionsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  AmisRoute: AmisRoute,
+  CollectionsRoute: CollectionsRouteWithChildren,
   LoginRoute: LoginRoute,
-  ThreeRoute: ThreeRoute,
-  TwoRoute: TwoRoute,
+  My_recipesRoute: My_recipesRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }
