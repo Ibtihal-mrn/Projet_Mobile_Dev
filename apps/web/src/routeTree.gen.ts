@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TwoRouteImport } from './routes/two'
+import { Route as ThreeRouteImport } from './routes/three'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const TwoRoute = TwoRouteImport.update({
+  id: '/two',
+  path: '/two',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreeRoute = ThreeRouteImport.update({
+  id: '/three',
+  path: '/three',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -45,6 +57,8 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/three': typeof ThreeRoute
+  '/two': typeof TwoRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -52,6 +66,8 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/three': typeof ThreeRoute
+  '/two': typeof TwoRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -60,27 +76,67 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
+  '/three': typeof ThreeRoute
+  '/two': typeof TwoRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/three'
+    | '/two'
+    | '/api/auth/$'
+    | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
-  id: '__root__' | '/' | '/dashboard' | '/login' | '/api/auth/$' | '/api/rpc/$'
+  to:
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/three'
+    | '/two'
+    | '/api/auth/$'
+    | '/api/rpc/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/login'
+    | '/three'
+    | '/two'
+    | '/api/auth/$'
+    | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
+  ThreeRoute: typeof ThreeRoute
+  TwoRoute: typeof TwoRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/two': {
+      id: '/two'
+      path: '/two'
+      fullPath: '/two'
+      preLoaderRoute: typeof TwoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/three': {
+      id: '/three'
+      path: '/three'
+      fullPath: '/three'
+      preLoaderRoute: typeof ThreeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -123,6 +179,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
+  ThreeRoute: ThreeRoute,
+  TwoRoute: TwoRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }

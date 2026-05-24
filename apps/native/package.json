@@ -18,6 +18,7 @@
     "@gorhom/bottom-sheet": "^5",
     "@my-better-t-app/api": "workspace:*",
     "@my-better-t-app/env": "workspace:*",
+    "@my-app/hooks": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/tanstack-query": "catalog:",
     "@react-native-async-storage/async-storage": "^3.0.2",

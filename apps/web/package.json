@@ -12,6 +12,7 @@
     "@my-better-t-app/api": "workspace:*",
     "@my-better-t-app/auth": "workspace:*",
     "@my-better-t-app/env": "workspace:*",
+    "@my-app/hooks": "workspace:*",
     "@orpc/client": "catalog:",
     "@orpc/openapi": "catalog:",
     "@orpc/server": "catalog:",
