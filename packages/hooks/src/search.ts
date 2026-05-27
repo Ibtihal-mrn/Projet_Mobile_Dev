@@ -31,9 +31,9 @@ function hasAnyFilter(filters: SearchFilters | null) {
 
   return Boolean(
     filters.query ||
-      (filters.ingredients && filters.ingredients.length > 0) ||
-      typeof filters.prepTimeMin === "number" ||
-      typeof filters.prepTimeMax === "number",
+    (filters.ingredients && filters.ingredients.length > 0) ||
+    typeof filters.prepTimeMin === "number" ||
+    typeof filters.prepTimeMax === "number",
   );
 }
 
@@ -47,7 +47,9 @@ export function useSearch({ orpc }: SearchHookDeps) {
   const [prepTimeMinText, setPrepTimeMinText] = useState("");
   const [prepTimeMaxText, setPrepTimeMaxText] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [appliedFilters, setAppliedFilters] = useState<SearchFilters | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<SearchFilters | null>(
+    null,
+  );
 
   const searchQuery = useQuery({
     ...orpc.recipe.search.queryOptions({
@@ -83,12 +85,18 @@ export function useSearch({ orpc }: SearchHookDeps) {
       .map((item) => item.trim())
       .filter(Boolean);
 
-    const minTime = prepTimeMinText.trim() ? Number(prepTimeMinText.trim()) : undefined;
-    const maxTime = prepTimeMaxText.trim() ? Number(prepTimeMaxText.trim()) : undefined;
+    const minTime = prepTimeMinText.trim()
+      ? Number(prepTimeMinText.trim())
+      : undefined;
+    const maxTime = prepTimeMaxText.trim()
+      ? Number(prepTimeMaxText.trim())
+      : undefined;
 
     if (
-      (typeof minTime === "number" && (!Number.isInteger(minTime) || minTime <= 0)) ||
-      (typeof maxTime === "number" && (!Number.isInteger(maxTime) || maxTime <= 0))
+      (typeof minTime === "number" &&
+        (!Number.isInteger(minTime) || minTime <= 0)) ||
+      (typeof maxTime === "number" &&
+        (!Number.isInteger(maxTime) || maxTime <= 0))
     ) {
       setFormError("Le temps de preparation doit etre un entier positif.");
       return;
@@ -99,7 +107,9 @@ export function useSearch({ orpc }: SearchHookDeps) {
       typeof maxTime === "number" &&
       minTime > maxTime
     ) {
-      setFormError("Le temps minimum ne peut pas etre superieur au temps maximum.");
+      setFormError(
+        "Le temps minimum ne peut pas etre superieur au temps maximum.",
+      );
       return;
     }
 

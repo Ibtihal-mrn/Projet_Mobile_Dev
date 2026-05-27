@@ -15,3 +15,6 @@ export type { HomePageHookDeps } from "./home_page";
 
 export {useAuth} from "./auth";
 export type {AuthHookDeps} from "./auth";
+
+export { useCollectionDetailsPage } from "./tabs/collection_details";
+export type { CollectionDetailsHookDeps } from "./tabs/collection_details";

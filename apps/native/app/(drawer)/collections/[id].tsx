@@ -1,39 +1,38 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
 import { Card } from "heroui-native";
 import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
+import { useCollectionDetailsPage } from "@my-app/hooks";
 
-const FALLBACK_RECIPE_IMAGE =
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
+type CollectionRecipe = {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string | null;
+  isPublic: boolean;
+  prepTime: number;
+  authorName: string | null;
+  showVisibilityBadge: boolean;
+};
+
 
 export default function CollectionDetailsScreen() {
-  const router = useRouter();
   const { width } = useWindowDimensions();
-  const { id, from, userId } = useLocalSearchParams<{ id: string; from?: string; userId?: string }>();
+  const { id } = useLocalSearchParams();
+  const router = useRouter();
 
-  const collectionId = Number(id);
-  const hasValidId = Number.isInteger(collectionId) && collectionId > 0;
+  const {
+    collectionQuery,
+    hasValidId,
+    fallbackRecipeImage,
+  } = useCollectionDetailsPage({ orpc, collectionId: String(id) });
 
-  // Déterminer le chemin de retour
-  const getBackPath = () => {
-    if (from === "profile" && userId) {
-      return () => router.push(`/(drawer)/users/${userId}`);
-    }
-    return () => router.push("/(drawer)/(tabs)/three");
-  };
-
-  const handleBack = getBackPath();
-
-  const collectionQuery = useQuery({
-    ...orpc.collection.byId.queryOptions({
-      input: { id: hasValidId ? collectionId : 1 },
-    }),
-    enabled: hasValidId,
-  });
-
+  const handleBack = () => {
+    router.back();
+  };  
+  
   const SCREEN_PADDING = 24;
   const GAP = 12;
   const columns = width < 420 ? 1 : width < 768 ? 2 : 3;
@@ -111,9 +110,9 @@ export default function CollectionDetailsScreen() {
         ) : null}
 
         <View className="flex-row flex-wrap">
-          {collection.recipes.map((recipe, index) => {
+          {collection.recipes.map((recipe: CollectionRecipe, index: number) => {
             const isLastInRow = (index + 1) % columns === 0;
-            const imageUrl = recipe.imageUrl ?? FALLBACK_RECIPE_IMAGE;
+            const imageUrl = recipe.imageUrl ?? fallbackRecipeImage;
 
             return (
               <View
