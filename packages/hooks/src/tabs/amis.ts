@@ -7,30 +7,30 @@ import type { RouterUtils } from "@orpc/tanstack-query";
 export type AmisHookDeps = {
   orpc: RouterUtils<AppRouterClient>;
   authClient: {
-    useSession: () => { data: { user?: unknown } | null };
+    useSession: () => { data: { user?: unknown } | null; isPending: boolean };
   };
   queryClient: QueryClient;
 };
 
 export function useAmis({ orpc, authClient, queryClient }: AmisHookDeps) {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [query, setQuery] = useState("");
   const [searchInput, setSearchInput] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
 
   const pendingRequestsQuery = useQuery({
     ...orpc.user.pendingRequests.queryOptions(),
-    enabled: Boolean(session?.user),
+    enabled: Boolean(session?.user) && !isPending,
   } as unknown as Parameters<typeof useQuery>[0]);
 
   const friendsQuery = useQuery({
     ...orpc.user.friends.queryOptions(),
-    enabled: Boolean(session?.user),
+    enabled: Boolean(session?.user) && !isPending,
   } as unknown as Parameters<typeof useQuery>[0]);
 
   const searchQuery = useQuery({
     ...orpc.user.search.queryOptions({ input: { query } }),
-    enabled: Boolean(session?.user) && query.trim().length > 0,
+    enabled: Boolean(session?.user) && query.trim().length > 0 && !isPending,
   } as unknown as Parameters<typeof useQuery>[0]);
 
   const sendFriendRequest = useMutation(
@@ -68,6 +68,7 @@ export function useAmis({ orpc, authClient, queryClient }: AmisHookDeps) {
 
   return {
     session,
+    isPending,
     query,
     searchInput,
     setSearchInput,
