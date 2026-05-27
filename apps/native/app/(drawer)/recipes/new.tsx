@@ -25,7 +25,8 @@ function emptyIngredient(): IngredientFormRow {
 
 export default function NewRecipeScreen() {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = Boolean(session?.user) && !isPending;
 
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState("");
@@ -39,7 +40,7 @@ export default function NewRecipeScreen() {
 
   const totalSteps = 3;
 
-  if (!session?.user) {
+  if (!isAuthenticated) {
     return (
       <Container className="p-6">
         <View className="gap-4 pb-8">

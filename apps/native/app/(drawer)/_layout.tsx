@@ -12,7 +12,8 @@ function DrawerLayout() {
   const themeColorForeground = useThemeColor("foreground");
   const themeColorBackground = useThemeColor("background");
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = Boolean(session?.user) && !isPending;
 
   const renderThemeToggle = useCallback(() => <ThemeToggle />, []);
 
@@ -87,15 +88,15 @@ function DrawerLayout() {
       <Drawer.Screen
         name="auth"
         options={{
-          headerTitle: session?.user ? "Mon compte" : "Connexion",
+          headerTitle: isAuthenticated ? "Mon compte" : "Connexion",
           drawerLabel: ({ color, focused }) => (
             <Text style={{ color: focused ? color : themeColorForeground }}>
-              {session?.user ? "Mon compte" : "Connexion"}
+              {isAuthenticated ? "Mon compte" : "Connexion"}
             </Text>
           ),
           drawerIcon: ({ size, color, focused }) => (
             <Ionicons
-              name={session?.user ? "person-circle-outline" : "log-in-outline"}
+              name={isAuthenticated ? "person-circle-outline" : "log-in-outline"}
               size={size}
               color={focused ? color : themeColorForeground}
             />

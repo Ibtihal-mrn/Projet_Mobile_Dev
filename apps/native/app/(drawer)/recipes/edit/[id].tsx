@@ -28,7 +28,8 @@ export default function EditRecipeScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const recipeId = Number(id);
   const hasValidId = Number.isInteger(recipeId) && recipeId > 0;
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
+  const isAuthenticated = Boolean(session?.user) && !isPending;
 
   const recipeQuery = useQuery(
     orpc.recipe.byId.queryOptions({
@@ -235,6 +236,8 @@ export default function EditRecipeScreen() {
   }
 
   if (!session?.user) {
+    if (!isAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <Container className="p-6">
         <View className="gap-4 pb-8">
