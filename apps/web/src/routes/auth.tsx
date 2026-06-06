@@ -10,9 +10,10 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-const queryClient = useQueryClient();
+
 
 function AuthPage() {
+  const queryClient = useQueryClient();
   const {
     session,
     isPending,

@@ -13,9 +13,10 @@ export const Route = createFileRoute("/amis")({
   component: AmisPage,
 });
 
-const queryClient = useQueryClient();
+
 
 function AmisPage() {
+  const queryClient = useQueryClient();
   const {
     session,
     searchInput,
