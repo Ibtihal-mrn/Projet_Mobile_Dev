@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { QueryClient } from "@tanstack/react-query";
-import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
-import type { RouterUtils } from "@orpc/tanstack-query";
+import type { ORPCUtils } from "./orpc-types";
 
 type AuthUser = {
   name?: string | null;
@@ -9,7 +8,7 @@ type AuthUser = {
 };
 
 export type AuthHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
   authClient: {
     useSession: () => { data: { user?: AuthUser } | null; isPending: boolean };
     signOut: (args: {

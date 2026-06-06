@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
-import type { RouterUtils } from "@orpc/tanstack-query";
+import type { ORPCUtils } from "./orpc-types";
+import type { AuthUser } from "./types";
 
 type HomeRecipe = {
   id: number;
@@ -14,9 +14,9 @@ type HomeRecipe = {
 };
 
 export type HomePageHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
   authClient: {
-    useSession: () => { data: { user?: unknown } | null; isPending: boolean };
+    useSession: () => { data: { user?: AuthUser } | null; isPending: boolean };
   };
 };
 

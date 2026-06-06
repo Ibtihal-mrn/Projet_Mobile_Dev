@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import type { QueryClient, UseQueryResult } from "@tanstack/react-query";
-import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
-import type { RouterUtils } from "@orpc/tanstack-query";
+import type { ORPCUtils } from "../orpc-types";
 
 type CollectionRecipe = {
   id: number;
@@ -22,7 +21,7 @@ type CollectionDetails = {
 };
 
 export type CollectionDetailsHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
   collectionId: string;
   onNavigateBack?: () => void;
   onNavigateToRecipe?: (recipeId: string) => void;

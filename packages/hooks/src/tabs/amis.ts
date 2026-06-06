@@ -3,11 +3,15 @@ import { useState } from "react";
 import type { QueryClient } from "@tanstack/react-query";
 import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
 import type { RouterUtils } from "@orpc/tanstack-query";
+import type { AuthUser } from "../types";
+
+export type ORPCClient = AppRouterClient;
+export type ORPCUtils = RouterUtils<ORPCClient>;
 
 export type AmisHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
   authClient: {
-    useSession: () => { data: { user?: unknown } | null; isPending: boolean };
+    useSession: () => { data: { user?: AuthUser } | null; isPending: boolean };
   };
   queryClient: QueryClient;
 };

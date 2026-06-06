@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import type { QueryClient } from "@tanstack/react-query";
-import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
-import type { RouterUtils } from "@orpc/tanstack-query";
+import type { ORPCUtils } from "../orpc-types";
+import type { AuthUser } from "../types";
 
 type CollectionSummary = {
   id: number;
@@ -14,9 +14,9 @@ type CollectionSummary = {
 };
 
 export type CollectionHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
   authClient: {
-    useSession: () => { data: { user?: unknown } | null; isPending: boolean };
+    useSession: () => { data: { user?: AuthUser } | null; isPending: boolean };
   };
   queryClient: QueryClient;
 };
@@ -52,8 +52,8 @@ export function useCollectionPage({
           queryKey: orpc.collection.listMine.queryKey(),
         });
       },
-      onError: (error) => {
-        setActionError(error.message || "Impossible de creer la collection.");
+      onError: (error: any) => {
+        setActionError(error?.message || "Impossible de creer la collection.");
       },
     }) as unknown as Parameters<typeof useMutation>[0],
   );

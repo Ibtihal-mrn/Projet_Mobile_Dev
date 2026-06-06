@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import type { AppRouterClient } from "@my-better-t-app/api/routers/index";
-import type { RouterUtils } from "@orpc/tanstack-query";
+import type { ORPCUtils } from "./orpc-types";
 
 type SearchRecipe = {
   id: number;
@@ -38,7 +37,7 @@ function hasAnyFilter(filters: SearchFilters | null) {
 }
 
 export type SearchHookDeps = {
-  orpc: RouterUtils<AppRouterClient>;
+  orpc: ORPCUtils;
 };
 
 export function useSearch({ orpc }: SearchHookDeps) {
