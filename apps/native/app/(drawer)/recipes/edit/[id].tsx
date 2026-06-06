@@ -31,16 +31,7 @@ export default function EditRecipeScreen() {
   const { data: session, isPending } = authClient.useSession();
   const isAuthenticated = Boolean(session?.user) && !isPending;
 
-  const recipeQuery = useQuery(
-    orpc.recipe.byId.queryOptions({
-      input: { id: hasValidId ? recipeId : 1 },
-    })as unknown as Parameters<typeof useQuery>[0],
-  ) as {
-    data?: Recipe | null;
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  };
+  const recipeQuery = useQuery(orpc.recipe.byId.queryOptions({ input: { id: recipeId } }));
 
   const recipe = hasValidId ? recipeQuery.data : null;
 
@@ -56,23 +47,6 @@ export default function EditRecipeScreen() {
   const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
   const totalSteps = 3;
-
-  type Recipe = {
-    id: number;
-    title: string;
-    description: string;
-    prepTime: number;
-    isPublic: boolean;
-    imageUrl: string | null;
-    ingredients: Array<{
-      ingredient: { name: string };
-      quantity?: string;
-      unit?: string;
-    }>;
-    steps: Array<{ content: string }>;
-    isOwner: boolean;
-  };  
-
 
 
   useEffect(() => {
@@ -124,27 +98,7 @@ export default function EditRecipeScreen() {
         }
         setFormError(message);
       },
-    }) as unknown as Parameters<typeof useMutation>[0],
-  ) as {
-    mutate: (variables: {
-      id: number;
-      title: string;
-      description: string;
-      isPublic: boolean;
-      prepTime: number;
-      imageUrl?: string;
-      ingredients: Array<{
-        ingredientId?: number;
-        name?: string;
-        quantity?: string;
-        unit?: string;
-      }>;
-      steps: string[];
-    }) => void;
-    isPending: boolean;
-    isError: boolean;
-    error?: Error | null;
-  };
+    }));
 
   const cleanedIngredients = useMemo(
     () =>

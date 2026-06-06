@@ -10,45 +10,6 @@ import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
 import { addShoppingList, createShoppingListPdf } from "@/lib/shopping-lists";
 import { orpc, queryClient } from "@/utils/orpc";
 
-type RecipeIngredient = {
-  id: number;
-  quantity: string | null;
-  unit: string | null;
-  ingredient: {
-    name: string;
-  };
-};
-
-type RecipeStep = {
-  id: number;
-  stepOrder: number;
-  content: string;
-};
-
-type RecipeDetail = {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  prepTime: number;
-  isPublic: boolean;
-  showVisibilityBadge: boolean;
-  isOwner: boolean;
-  authorName: string | null;
-  author?: {
-    username?: string | null;
-  } | null;
-  servings?: number;
-  ingredients: RecipeIngredient[];
-  steps: RecipeStep[];
-};
-
-type CollectionSummary = {
-  id: number;
-  name: string;
-  recipesCount: number;
-  hasRecipe: boolean;
-};
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
@@ -104,10 +65,7 @@ export default function RecipeDetailsScreen() {
     orpc.recipe.byId.queryOptions({
       input: { id: hasValidId ? recipeId : 1 },
     }),
-  ) as {
-    data?: RecipeDetail;
-    isLoading: boolean;
-  };
+  );
 
   const recipe = hasValidId ? recipeQuery.data : null;
 
@@ -118,10 +76,7 @@ export default function RecipeDetailsScreen() {
       },
     }),
     enabled: isSavePanelOpen && hasValidId,
-  } as unknown as Parameters<typeof useQuery>[0]) as {
-    data?: CollectionSummary[];
-    isLoading: boolean;
-  };
+  });
 
   const baseServings = useMemo(() => {
     const maybeServings = (recipe as { servings?: number } | null)?.servings;

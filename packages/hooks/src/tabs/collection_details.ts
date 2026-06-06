@@ -1,24 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import type { QueryClient, UseQueryResult } from "@tanstack/react-query";
+import type { QueryClient} from "@tanstack/react-query";
 import type { ORPCUtils } from "../orpc-types";
 
-type CollectionRecipe = {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  isPublic: boolean;
-  prepTime: number;
-  authorName: string | null;
-  showVisibilityBadge: boolean;
-};
-
-type CollectionDetails = {
-  id: number;
-  name: string;
-  recipes: CollectionRecipe[];
-};
 
 export type CollectionDetailsHookDeps = {
   orpc: ORPCUtils;
@@ -45,7 +29,7 @@ export function useCollectionDetailsPage({
       input: { id: hasValidId ? parsedId : 1 },
     }) as any),
     enabled: hasValidId,
-  } as any) as UseQueryResult<CollectionDetails, Error>;
+  });
 
   const collection = collectionQuery.data ?? null;
 

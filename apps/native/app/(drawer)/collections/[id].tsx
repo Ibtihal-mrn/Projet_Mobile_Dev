@@ -6,17 +6,6 @@ import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
 import { useCollectionDetailsPage } from "@my-app/hooks";
 
-type CollectionRecipe = {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  isPublic: boolean;
-  prepTime: number;
-  authorName: string | null;
-  showVisibilityBadge: boolean;
-};
-
 
 export default function CollectionDetailsScreen() {
   const { width } = useWindowDimensions();
@@ -110,7 +99,7 @@ export default function CollectionDetailsScreen() {
         ) : null}
 
         <View className="flex-row flex-wrap">
-          {collection.recipes.map((recipe: CollectionRecipe, index: number) => {
+          {collection.recipes.map((recipe) => {
             const isLastInRow = (index + 1) % columns === 0;
             const imageUrl = recipe.imageUrl ?? fallbackRecipeImage;
 

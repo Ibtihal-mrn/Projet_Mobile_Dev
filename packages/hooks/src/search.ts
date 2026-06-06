@@ -2,16 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import type { ORPCUtils } from "./orpc-types";
 
-type SearchRecipe = {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  isPublic: boolean;
-  prepTime: number;
-  authorName: string | null;
-  showVisibilityBadge: boolean;
-};
+
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
@@ -60,12 +51,7 @@ export function useSearch({ orpc }: SearchHookDeps) {
       },
     }),
     enabled: hasAnyFilter(appliedFilters),
-  } as unknown as Parameters<typeof useQuery>[0]) as {
-    data?: SearchRecipe[];
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  };
+  }); 
 
   const searchErrorMessage = useMemo(() => {
     if (!searchQuery.isError) {

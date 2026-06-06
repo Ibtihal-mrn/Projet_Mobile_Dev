@@ -4,14 +4,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import type { ORPCUtils } from "../orpc-types";
 import type { AuthUser } from "../types";
 
-type CollectionSummary = {
-  id: number;
-  name: string;
-  createdAt: Date;
-  recipesCount: number;
-  imageUrls: Array<string | null>;
-  hasRecipe: boolean;
-};
+
 
 export type CollectionHookDeps = {
   orpc: ORPCUtils;
@@ -36,12 +29,7 @@ export function useCollectionPage({
   const collectionsQuery = useQuery({
     ...(orpc.collection.listMine.queryOptions() as any),
     enabled: Boolean(session?.user) && !isPending,
-  } as any) as {
-    data?: CollectionSummary[];
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  };
+  });
 
   const createCollectionMutation = useMutation(
     orpc.collection.create.mutationOptions({
@@ -55,8 +43,7 @@ export function useCollectionPage({
       onError: (error: any) => {
         setActionError(error?.message || "Impossible de creer la collection.");
       },
-    }) as unknown as Parameters<typeof useMutation>[0],
-  );
+    }));
 
   const collectionsErrorMessage = useMemo(() => {
     if (!collectionsQuery.isError) {

@@ -2,16 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { ORPCUtils } from "../orpc-types";
 import type { AuthUser } from "../types";
 
-type HomeRecipe = {
-  id: number;
-  title: string;
-  description: string;
-  imageUrl: string | null;
-  isPublic: boolean;
-  prepTime: number;
-  authorName: string | null;
-  showVisibilityBadge: boolean;
-};
+
 
 export type MyRecipesHookDeps = {
   orpc: ORPCUtils;
@@ -29,12 +20,7 @@ export function useMyRecipesPage({ orpc, authClient }: MyRecipesHookDeps) {
   const recipes = useQuery({
     ...(orpc.recipe.mine.queryOptions() as any),
     enabled: Boolean(session?.user) && !isPending,
-  } as any) as {
-    data?: HomeRecipe[];
-    isLoading: boolean;
-    isError: boolean;
-    error: unknown;
-  };
+  });
 
   const recipesErrorMessage =
     recipes.error instanceof Error
