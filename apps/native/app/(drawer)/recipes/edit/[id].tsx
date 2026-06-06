@@ -236,8 +236,6 @@ export default function EditRecipeScreen() {
   }
 
   if (!session?.user) {
-    if (!isAuthenticated) {
-  if (!isAuthenticated) {
     return (
       <Container className="p-6">
         <View className="gap-4 pb-8">
