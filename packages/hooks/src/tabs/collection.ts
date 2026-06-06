@@ -27,7 +27,7 @@ export function useCollectionPage({
   const [newCollectionName, setNewCollectionName] = useState("");
 
   const collectionsQuery = useQuery({
-    ...(orpc.collection.listMine.queryOptions() as any),
+    ...(orpc.collection.listMine.queryOptions()),
     enabled: Boolean(session?.user) && !isPending,
   });
 

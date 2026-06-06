@@ -27,7 +27,7 @@ export function useCollectionDetailsPage({
   const collectionQuery = useQuery({
     ...(orpc.collection.byId.queryOptions({
       input: { id: hasValidId ? parsedId : 1 },
-    }) as any),
+    })),
     enabled: hasValidId,
   });
 

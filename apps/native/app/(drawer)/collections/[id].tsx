@@ -99,7 +99,7 @@ export default function CollectionDetailsScreen() {
         ) : null}
 
         <View className="flex-row flex-wrap">
-          {collection.recipes.map((recipe) => {
+          {collection.recipes.map((recipe, index) => {
             const isLastInRow = (index + 1) % columns === 0;
             const imageUrl = recipe.imageUrl ?? fallbackRecipeImage;
 
