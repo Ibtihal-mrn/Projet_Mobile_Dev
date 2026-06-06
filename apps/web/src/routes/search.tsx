@@ -2,7 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSearch } from "@my-app/hooks";
 import { orpc } from "@/utils/orpc";
 
+
 export const Route = createFileRoute("/search")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      context.orpc.recipe.list.queryOptions(),
+    );
+  },
   component: SearchPage,
 });
 

@@ -5,6 +5,11 @@ import { orpc } from "@/utils/orpc";
 import { useMyRecipesPage } from "@my-app/hooks";
 
 export const Route = createFileRoute("/my_recipes")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      context.orpc.recipe.list.queryOptions(),
+    );
+  },
   component: MyRecipesPage,
 });
 

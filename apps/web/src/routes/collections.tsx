@@ -3,7 +3,13 @@ import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
 import { useCollectionPage } from "@my-app/hooks";
 
+
 export const Route = createFileRoute("/collections")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      context.orpc.recipe.list.queryOptions(),
+    );
+  },
   component: CollectionsPage,
 });
 

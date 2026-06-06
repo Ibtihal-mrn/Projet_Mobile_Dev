@@ -5,6 +5,11 @@ import { useHomePage } from "@my-app/hooks";
 
 
 export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(
+      context.orpc.recipe.list.queryOptions(),
+    );
+  },
   component: HomeComponent,
 });
 
