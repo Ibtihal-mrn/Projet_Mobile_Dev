@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { orpc, queryClient } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAmis } from "@my-app/hooks";
 
 export const Route = createFileRoute("/amis")({
@@ -11,6 +12,8 @@ export const Route = createFileRoute("/amis")({
   },
   component: AmisPage,
 });
+
+const queryClient = useQueryClient();
 
 function AmisPage() {
   const {

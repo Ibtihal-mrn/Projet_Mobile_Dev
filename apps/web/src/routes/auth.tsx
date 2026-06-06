@@ -3,11 +3,14 @@ import { useAuth } from "@my-app/hooks";
 import { authClient } from "@/lib/auth-client";
 import SignInForm from "@/components/sign-in-form";
 import SignUpForm from "@/components/sign-up-form";
-import { orpc, queryClient } from "@/utils/orpc";
+import { orpc} from "@/utils/orpc";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
+
+const queryClient = useQueryClient();
 
 function AuthPage() {
   const {

@@ -5,9 +5,11 @@ import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import "./index.css";
 import Loader from "./components/loader";
 import { routeTree } from "./routeTree.gen";
-import { orpc, queryClient } from "./utils/orpc";
+import { createQueryClient, orpc } from "./utils/orpc";
 
 export const getRouter = () => {
+  const queryClient = createQueryClient(); // ← un client neuf à chaque appel
+
   const router = createTanStackRouter({
     routeTree,
     scrollRestoration: true,
@@ -19,6 +21,7 @@ export const getRouter = () => {
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     ),
   });
+
   return routerWithQueryClient(router, queryClient);
 };
 

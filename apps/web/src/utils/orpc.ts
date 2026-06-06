@@ -9,25 +9,29 @@ import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryCache, QueryClient } from "@tanstack/react-query";
 import { createIsomorphicFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { getRequest} from "@tanstack/react-start/server";
 
-export const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error, query) => {
-      toast.error(`Error: ${error.message}`, {
-        action: {
-          label: "retry",
-          onClick: query.invalidate,
-        },
-      });
-    },
-  }),
-});
+export function createQueryClient() {
+  return new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        toast.error(`Error: ${error.message}`, {
+          action: {
+            label: "retry",
+            onClick: query.invalidate,
+          },
+        });
+      },
+    }),
+  });
+}
 
 const getORPCClient = createIsomorphicFn()
   .server(() =>
     createRouterClient(appRouter, {
-      context: async ({ req }) => {
-        return createContext({ req });
+      context: async () => {
+        const request = getRequest();      // ← la vraie requête SSR
+        return createContext({ req: request });
       },
     }),
   )
@@ -35,13 +39,9 @@ const getORPCClient = createIsomorphicFn()
     const link = new RPCLink({
       url: `${window.location.origin}/api/rpc`,
       fetch(url, options) {
-        return fetch(url, {
-          ...options,
-          credentials: "include",
-        });
+        return fetch(url, { ...options, credentials: "include" });
       },
     });
-
     return createORPCClient(link);
   });
 
