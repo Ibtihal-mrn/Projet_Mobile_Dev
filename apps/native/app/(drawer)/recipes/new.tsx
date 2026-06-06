@@ -16,6 +16,20 @@ type IngredientFormRow = {
   unit: string;
 };
 
+type CreateRecipeInput = {
+  title: string;
+  description: string;
+  isPublic: boolean;
+  prepTime: number;
+  imageUrl: string;
+  ingredients: Array<{ name: string; quantity?: string; unit?: string }>;
+  steps: string[];
+};
+
+type CreateRecipeOutput = {
+  id: number;
+};
+
 const DEFAULT_IMAGE_URL =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
 
@@ -55,9 +69,9 @@ export default function NewRecipeScreen() {
     );
   }
 
-  const createRecipe = useMutation(
+  const createRecipe = useMutation<CreateRecipeOutput, Error, CreateRecipeInput>(
     orpc.recipe.create.mutationOptions({
-      onSuccess: async (recipe) => {
+      onSuccess: async (recipe: CreateRecipeOutput) => {
         setFormError(null);
         await queryClient.invalidateQueries({ queryKey: orpc.recipe.list.queryKey() });
         router.replace({
@@ -65,7 +79,7 @@ export default function NewRecipeScreen() {
           params: { id: String(recipe.id) },
         });
       },
-      onError: (error) => {
+      onError: (error : Error) => {
         const message = error.message || "Impossible de créer la recette.";
         if (
           message.toLowerCase().includes("unauthorized") ||
@@ -76,7 +90,7 @@ export default function NewRecipeScreen() {
         }
         setFormError(message);
       },
-    }),
+    }) as unknown as Parameters<typeof useMutation<CreateRecipeOutput, Error, CreateRecipeInput>>[0],
   );
 
   const cleanedIngredients = useMemo(

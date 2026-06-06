@@ -10,6 +10,7 @@ import { queryClient } from "@/utils/orpc";
 import { useAuth } from "@my-app/hooks";
 import { orpc } from "@/utils/orpc";
 
+
 export default function AuthScreen() {
   const {
     session,
@@ -33,9 +34,10 @@ export default function AuthScreen() {
   }
 
   if (session?.user) {
-    const avatarSeed = session.user.name || session.user.email;
-    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarSeed)}&background=0f766e&color=ffffff&size=256&bold=true&format=png`;
+    const avatarSeed = session.user.name || session.user.email || "Utilisateur";
 
+    const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(avatarSeed)}&background=0f766e&color=ffffff&size=256&bold=true&format=png`;
+    
     return (
       <Container className="p-6">
         <View className="gap-4 pb-8">

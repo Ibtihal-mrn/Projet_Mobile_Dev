@@ -1,7 +1,5 @@
 import { Link } from "expo-router";
-// import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Input, Spinner, TextField } from "heroui-native";
-// import { useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -10,54 +8,6 @@ import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
 import { useAmis } from "@my-app/hooks";
 
-// export default function AmisScreen() {
-//   const { data: session } = authClient.useSession();
-//   const [query, setQuery] = useState("");
-//   const [searchInput, setSearchInput] = useState("");
-//   const [actionError, setActionError] = useState<string | null>(null);
-
-//   const pendingRequestsQuery = useQuery({
-//     ...orpc.user.pendingRequests.queryOptions(),
-//     enabled: Boolean(session?.user),
-//   });
-//   const friendsQuery = useQuery({
-//     ...orpc.user.friends.queryOptions(),
-//     enabled: Boolean(session?.user),
-//   });
-
-//   const searchQuery = useQuery({
-//     ...orpc.user.search.queryOptions({ input: { query } }),
-//     enabled: Boolean(session?.user) && query.trim().length > 0,
-//   });
-
-//   const sendFriendRequest = useMutation(
-//     orpc.user.sendFriendRequest.mutationOptions({
-//       onSuccess: async () => {
-//         setActionError(null);
-//         await queryClient.invalidateQueries();
-//       },
-//       onError: (error) => {
-//         setActionError(error.message || "Impossible d'envoyer la demande d'ami.");
-//       },
-//     }),
-//   );
-
-//   const respondToRequest = useMutation(
-//     orpc.user.respondToFriendRequest.mutationOptions({
-//       onSuccess: async () => {
-//         setActionError(null);
-//         await queryClient.invalidateQueries();
-//       },
-//       onError: (error) => {
-//         setActionError(error.message || "Impossible de traiter la demande d'ami.");
-//       },
-//     }),
-//   );
-
-//   function submitSearch() {
-//     const trimmed = searchInput.trim();
-//     if (trimmed) setQuery(trimmed);
-//   }
 
 export default function AmisPage() {
   const {

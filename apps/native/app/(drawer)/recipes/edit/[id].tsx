@@ -34,8 +34,13 @@ export default function EditRecipeScreen() {
   const recipeQuery = useQuery(
     orpc.recipe.byId.queryOptions({
       input: { id: hasValidId ? recipeId : 1 },
-    }),
-  );
+    })as unknown as Parameters<typeof useQuery>[0],
+  ) as {
+    data?: Recipe | null;
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+  };
 
   const recipe = hasValidId ? recipeQuery.data : null;
 
@@ -51,6 +56,24 @@ export default function EditRecipeScreen() {
   const [hasHydratedForm, setHasHydratedForm] = useState(false);
 
   const totalSteps = 3;
+
+  type Recipe = {
+    id: number;
+    title: string;
+    description: string;
+    prepTime: number;
+    isPublic: boolean;
+    imageUrl: string | null;
+    ingredients: Array<{
+      ingredient: { name: string };
+      quantity?: string;
+      unit?: string;
+    }>;
+    steps: Array<{ content: string }>;
+    isOwner: boolean;
+  };  
+
+
 
   useEffect(() => {
     if (!recipe || hasHydratedForm) {
@@ -77,7 +100,7 @@ export default function EditRecipeScreen() {
 
   const updateRecipe = useMutation(
     orpc.recipe.update.mutationOptions({
-      onSuccess: async (updatedRecipe) => {
+      onSuccess: async (updatedRecipe: { id: number }) => {
         setFormError(null);
         await queryClient.invalidateQueries();
         router.replace({
@@ -85,23 +108,43 @@ export default function EditRecipeScreen() {
           params: { id: String(updatedRecipe.id) },
         });
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         const message = error.message || "Impossible de modifier la recette.";
 
         if (message.toLowerCase().includes("forbidden")) {
           setFormError("Tu ne peux modifier que tes propres recettes.");
           return;
         }
-
-        if (message.toLowerCase().includes("unauthorized") || message.toLowerCase().includes("401")) {
+        if (
+          message.toLowerCase().includes("unauthorized") ||
+          message.toLowerCase().includes("401")
+        ) {
           setFormError("Tu dois etre connecte(e) pour modifier une recette.");
           return;
         }
-
         setFormError(message);
       },
-    }),
-  );
+    }) as unknown as Parameters<typeof useMutation>[0],
+  ) as {
+    mutate: (variables: {
+      id: number;
+      title: string;
+      description: string;
+      isPublic: boolean;
+      prepTime: number;
+      imageUrl?: string;
+      ingredients: Array<{
+        ingredientId?: number;
+        name?: string;
+        quantity?: string;
+        unit?: string;
+      }>;
+      steps: string[];
+    }) => void;
+    isPending: boolean;
+    isError: boolean;
+    error?: Error | null;
+  };
 
   const cleanedIngredients = useMemo(
     () =>

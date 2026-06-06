@@ -6,6 +6,26 @@ import { Image, Text, View, useWindowDimensions, Pressable } from "react-native"
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
 
+type ProfileRecipe = {
+  id: number;
+  title: string;
+  description: string;
+  imageUrl: string | undefined;
+  prepTime: number;
+  isPublic: boolean;
+  showVisibilityBadge: boolean;
+};
+
+type UserProfile = {
+  id: number;
+  username: string;
+  avatarUrl: string | undefined;
+  relationStatus: "self" | "friend" | "incoming_pending" | "outgoing_pending" | "none";
+  canSeePrivateContent: boolean;
+  recipes: ProfileRecipe[];
+};    
+
+
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
 
@@ -37,7 +57,12 @@ export default function UserProfileScreen() {
       input: { userId: hasValidId ? profileUserId : 1 },
     }),
     enabled: hasValidId,
-  });
+  } as unknown as Parameters<typeof useQuery>[0]) as {
+    data?: UserProfile;
+    isLoading: boolean;
+    isError: boolean;
+    error: unknown;
+  };
 
   const SCREEN_PADDING = 24;
   const GAP = 12;
