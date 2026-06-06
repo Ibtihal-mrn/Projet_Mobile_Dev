@@ -18,7 +18,7 @@ export function useMyRecipesPage({ orpc, authClient }: MyRecipesHookDeps) {
   const { data: session, isPending } = authClient.useSession();
 
   const recipes = useQuery({
-    ...(orpc.recipe.mine.queryOptions() as any),
+    ...(orpc.recipe.mine.queryOptions()),
     enabled: Boolean(session?.user) && !isPending,
   });
 

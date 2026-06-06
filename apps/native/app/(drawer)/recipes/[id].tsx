@@ -52,7 +52,7 @@ export default function RecipeDetailsScreen() {
 
         setDeleteError(message);
       },
-    }) as unknown as Parameters<typeof useMutation>[0],
+    }),
   );
 
   function confirmDelete(recipeToDeleteId: number) {
@@ -105,7 +105,7 @@ export default function RecipeDetailsScreen() {
       onError: (error: Error) => {
         setSaveError(error.message || "Impossible de creer la collection.");
       },
-    }) as unknown as Parameters<typeof useMutation>[0],
+    }),
   );
 
   const addRecipeToCollectionMutation = useMutation(
@@ -135,7 +135,7 @@ export default function RecipeDetailsScreen() {
       onSettled: () => {
         setSavingCollectionId(null);
       },
-    }) as unknown as Parameters<typeof useMutation>[0],
+    }),
   );
 
   function createCollection() {

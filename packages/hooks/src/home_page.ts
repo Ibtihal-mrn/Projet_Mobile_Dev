@@ -17,7 +17,7 @@ export function useHomePage({ orpc, authClient }: HomePageHookDeps) {
   const { data: session, isPending } = authClient.useSession();
 
   const recipes = useQuery({
-    ...(orpc.recipe.list.queryOptions() as any),
+    ...(orpc.recipe.list.queryOptions()),
   });
 
   const recipesErrorMessage =

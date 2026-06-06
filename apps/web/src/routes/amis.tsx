@@ -72,7 +72,7 @@ function AmisPage() {
       ) : null}
 
       {(Array.isArray(searchQuery.data) ? searchQuery.data : []).map((user: any) => {
-        const isPending = sendFriendRequest.isPending && (sendFriendRequest.variables as any)?.userId === user.id;
+        const isPending = sendFriendRequest.isPending && (sendFriendRequest.variables)?.userId === user.id;
         const isFriend = user.relationStatus === "friend";
         const hasOutgoingPending = user.relationStatus === "outgoing_pending";
         const hasIncomingPending = user.relationStatus === "incoming_pending";
@@ -113,7 +113,7 @@ function AmisPage() {
           <p className="text-sm text-muted-foreground">Aucune demande en attente.</p>
         ) : null}
         {(Array.isArray(pendingRequestsQuery.data) ? pendingRequestsQuery.data : []).map((request: any) => {
-          const isPending = respondToRequest.isPending && (respondToRequest.variables as any)?.requestId === request.requestId;
+          const isPending = respondToRequest.isPending && (respondToRequest.variables)?.requestId === request.requestId;
           return (
             <div key={request.requestId} className="flex items-center justify-between gap-3">
               <p className="text-sm">{request.username}</p>
