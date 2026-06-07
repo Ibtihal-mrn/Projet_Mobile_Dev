@@ -1,0 +1,46 @@
+name: my-better-t-app
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: my-better-t-app-postgres
+    environment:
+      POSTGRES_DB: my-better-t-app
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - my-better-t-app_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: my-better-t-app-web
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # NOTE: le host de la DB est "postgres" (le nom du service), pas localhost
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/my-better-t-app"
+      BETTER_AUTH_SECRET: "REMPLACE_PAR_UN_SECRET_DE_32_CARACTERES_MINIMUM"
+      BETTER_AUTH_URL: "http://localhost:3001"
+      CORS_ORIGIN: "http://localhost:8081"
+      NODE_ENV: "production"
+    ports:
+      - "3001:3001"
+    # pousse le schéma en base au démarrage, puis sert l'app
+    command: >
+      sh -c "pnpm --filter @my-better-t-app/db run db:push &&
+             pnpm --filter web exec vite preview --host --port 3001"
+    restart: unless-stopped
+
+volumes:
+  my-better-t-app_postgres_data:
