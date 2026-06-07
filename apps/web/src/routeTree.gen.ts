@@ -16,6 +16,7 @@ import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmisRouteImport } from './routes/amis'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as RecipesIdRouteImport } from './routes/recipes/$id'
 import { Route as CollectionsSplatRouteImport } from './routes/collections/$'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -55,6 +56,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecipesIdRoute = RecipesIdRouteImport.update({
+  id: '/recipes/$id',
+  path: '/recipes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CollectionsSplatRoute = CollectionsSplatRouteImport.update({
   id: '/$',
   path: '/$',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
+  '/recipes/$id': typeof RecipesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -92,6 +99,7 @@ export interface FileRoutesByTo {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
+  '/recipes/$id': typeof RecipesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -105,6 +113,7 @@ export interface FileRoutesById {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
+  '/recipes/$id': typeof RecipesIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
 }
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/my_recipes'
     | '/search'
     | '/collections/$'
+    | '/recipes/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
@@ -131,6 +141,7 @@ export interface FileRouteTypes {
     | '/my_recipes'
     | '/search'
     | '/collections/$'
+    | '/recipes/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
   id:
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/my_recipes'
     | '/search'
     | '/collections/$'
+    | '/recipes/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
   fileRoutesById: FileRoutesById
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   My_recipesRoute: typeof My_recipesRoute
   SearchRoute: typeof SearchRoute
+  RecipesIdRoute: typeof RecipesIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
 }
@@ -210,6 +223,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recipes/$id': {
+      id: '/recipes/$id'
+      path: '/recipes/$id'
+      fullPath: '/recipes/$id'
+      preLoaderRoute: typeof RecipesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/collections/$': {
       id: '/collections/$'
       path: '/$'
@@ -254,6 +274,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   My_recipesRoute: My_recipesRoute,
   SearchRoute: SearchRoute,
+  RecipesIdRoute: RecipesIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,
 }

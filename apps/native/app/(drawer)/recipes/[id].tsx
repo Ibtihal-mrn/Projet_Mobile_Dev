@@ -1,15 +1,13 @@
-import { Link, Stack, useLocalSearchParams } from "expo-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { useRouter } from "expo-router";
+import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Button, Input, Spinner, TextField } from "heroui-native";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { Alert, Image, Text, View } from "react-native";
 
 import { Container } from "@/components/container";
-import { scaleIngredientQuantity } from "@/lib/recipe-scaling";
 import { addShoppingList, createShoppingListPdf } from "@/lib/shopping-lists";
+import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
-
+import { useRecipeDetail } from "@my-app/hooks";
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
@@ -18,173 +16,60 @@ export default function RecipeDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const recipeId = Number(id);
-  const hasValidId = Number.isInteger(recipeId) && recipeId > 0;
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [recipeIdToDelete, setRecipeIdToDelete] = useState<number | null>(null);
-  const [servings, setServings] = useState(2);
-  const [isGeneratingList, setIsGeneratingList] = useState(false);
-  const [listError, setListError] = useState<string | null>(null);
-  const [isSavePanelOpen, setIsSavePanelOpen] = useState(false);
-  const [newCollectionName, setNewCollectionName] = useState("");
-  const [saveError, setSaveError] = useState<string | null>(null);
-  const [savingCollectionId, setSavingCollectionId] = useState<number | null>(null);
 
-  const deleteRecipe = useMutation(
-    orpc.recipe.delete.mutationOptions({
-      onSuccess: async () => {
-        setDeleteError(null);
-        await queryClient.invalidateQueries();
-        router.replace("/(drawer)");
-      },
-      onError: (error: Error) => {
-        const message = error.message || "Impossible de supprimer la recette.";
-
-        if (message.toLowerCase().includes("forbidden")) {
-          setDeleteError("Tu ne peux supprimer que tes propres recettes.");
-          return;
-        }
-
-        if (message.toLowerCase().includes("unauthorized") || message.toLowerCase().includes("401")) {
-          setDeleteError("Tu dois etre connecte(e) pour supprimer une recette.");
-          return;
-        }
-
-        setDeleteError(message);
-      },
-    }),
-  );
-
-  function confirmDelete(recipeToDeleteId: number) {
-    setRecipeIdToDelete(recipeToDeleteId);
-    setIsDeleteConfirmOpen(true);
-  }
-
-  // Récupère les détails de la recette depuis l'API
-  const recipeQuery = useQuery(
-    orpc.recipe.byId.queryOptions({
-      input: { id: hasValidId ? recipeId : 1 },
-    }),
-  );
-
-  const recipe = hasValidId ? recipeQuery.data : null;
-
-  const collectionsQuery = useQuery({
-    ...orpc.collection.listMine.queryOptions({
-      input: {
-        recipeId: hasValidId ? recipeId : undefined,
-      },
-    }),
-    enabled: isSavePanelOpen && hasValidId,
+  const {
+    hasValidId,
+    recipeQuery,
+    recipe,
+    collectionsQuery,
+    baseServings,
+    servings,
+    incrementServings,
+    decrementServings,
+    resetServings,
+    scaleQuantity,
+    buildShoppingItems,
+    authorLabel,
+    deleteRecipe,
+    deleteError,
+    isDeleteConfirmOpen,
+    confirmDelete,
+    cancelDelete,
+    performDelete,
+    isSavePanelOpen,
+    toggleSavePanel,
+    newCollectionName,
+    setNewCollectionName,
+    saveError,
+    savingCollectionId,
+    createCollection,
+    createCollectionMutation,
+    saveToCollection,
+  } = useRecipeDetail({
+    orpc,
+    authClient,
+    queryClient,
+    recipeId,
+    onDeleted: () => router.replace("/(drawer)"),
   });
 
-  const baseServings = useMemo(() => {
-    const maybeServings = (recipe as { servings?: number } | null)?.servings;
-    if (typeof maybeServings === "number" && Number.isFinite(maybeServings) && maybeServings > 0) {
-      return Math.round(maybeServings);
-    }
-
-    return 2;
-  }, [recipe]);
-
-  useEffect(() => {
-    setServings(baseServings);
-  }, [baseServings]);
-
-  const createCollectionMutation = useMutation(
-    orpc.collection.create.mutationOptions({
-      onSuccess: async () => {
-        setSaveError(null);
-        setNewCollectionName("");
-        await queryClient.invalidateQueries({
-          queryKey: orpc.collection.listMine.queryKey({
-            input: { recipeId },
-          }),
-        });
-      },
-      onError: (error: Error) => {
-        setSaveError(error.message || "Impossible de creer la collection.");
-      },
-    }),
-  );
-
-  const addRecipeToCollectionMutation = useMutation(
-    orpc.collection.addRecipe.mutationOptions({
-      onMutate: (variables: { collectionId: number }) => {
-        setSavingCollectionId(variables.collectionId);
-      },
-      onSuccess: async (
-        _data: unknown,
-        variables: { collectionId: number },
-      ) => {
-        setSaveError(null);
-        await queryClient.invalidateQueries({
-          queryKey: orpc.collection.listMine.queryKey({
-            input: { recipeId },
-          }),
-        });
-        await queryClient.invalidateQueries({
-          queryKey: orpc.collection.byId.queryKey({
-            input: { id: variables.collectionId },
-          }),
-        });
-      },
-      onError: (error: Error) => {
-        setSaveError(error.message || "Impossible d'enregistrer la recette dans cette collection.");
-      },
-      onSettled: () => {
-        setSavingCollectionId(null);
-      },
-    }),
-  );
-
-  function createCollection() {
-    const trimmed = newCollectionName.trim();
-    if (!trimmed) {
-      setSaveError("Le nom de la collection est obligatoire.");
-      return;
-    }
-
-    createCollectionMutation.mutate({ name: trimmed });
-  }
-
-  function saveToCollection(collectionId: number) {
-    if (!recipe) {
-      return;
-    }
-
-    addRecipeToCollectionMutation.mutate({
-      collectionId,
-      recipeId: recipe.id,
-    });
-  }
+  // PDF = spécifique natif (Expo), reste dans la page
+  const [isGeneratingList, setIsGeneratingList] = useState(false);
+  const [listError, setListError] = useState<string | null>(null);
 
   async function generateIngredientsList() {
-    if (!recipe) {
-      return;
-    }
-
+    if (!recipe) return;
     setIsGeneratingList(true);
-
     try {
-      const items = recipe.ingredients.map((ingredient) => {
-        const scaledQuantity = scaleIngredientQuantity(ingredient.quantity, baseServings, servings);
-        const quantityText = scaledQuantity ? `${scaledQuantity} ` : "";
-        const unitText = ingredient.unit ? `${ingredient.unit} ` : "";
-        return `${quantityText}${unitText}${ingredient.ingredient.name}`.trim();
-      });
-
       const pdf = await createShoppingListPdf({
         recipeId: recipe.id,
         recipeTitle: recipe.title,
         servings,
         baseServings,
-        items,
+        items: buildShoppingItems(),
       });
-
       await addShoppingList(pdf);
       setListError(null);
-
       Alert.alert(
         "PDF généré",
         "La liste de courses a été enregistrée. Tu peux la retrouver dans l'onglet Liste de courses.",
@@ -232,7 +117,6 @@ export default function RecipeDetailsScreen() {
   }
 
   const imageUrl = recipe.imageUrl ?? FALLBACK_RECIPE_IMAGE;
-  const authorLabel = recipe.author?.username ?? recipe.authorName ?? "Auteur inconnu";
 
   return (
     <Container className="pb-6">
@@ -261,10 +145,7 @@ export default function RecipeDetailsScreen() {
           {recipe.isOwner ? (
             <View className="flex-row gap-2">
               <Link
-                href={{
-                  pathname: "/(drawer)/recipes/edit/[id]",
-                  params: { id: String(recipe.id) },
-                }}
+                href={{ pathname: "/(drawer)/recipes/edit/[id]", params: { id: String(recipe.id) } }}
                 asChild
               >
                 <Button className="self-start" isDisabled={deleteRecipe.isPending}>
@@ -272,11 +153,7 @@ export default function RecipeDetailsScreen() {
                 </Button>
               </Link>
 
-              <Button
-                className="self-start"
-                onPress={() => confirmDelete(recipe.id)}
-                isDisabled={deleteRecipe.isPending}
-              >
+              <Button className="self-start" onPress={confirmDelete} isDisabled={deleteRecipe.isPending}>
                 {deleteRecipe.isPending ? (
                   <Spinner size="sm" color="default" />
                 ) : (
@@ -290,29 +167,20 @@ export default function RecipeDetailsScreen() {
             <View className="gap-3 rounded-2xl border border-danger/30 bg-danger/10 p-4">
               <Text className="text-base font-semibold text-foreground">Supprimer la recette ?</Text>
               <Text className="text-sm text-foreground">
-                Cette action est definitive. La recette sera supprimée pour de bon.
+                Cette action est définitive. La recette sera supprimée pour de bon.
               </Text>
 
               <View className="flex-row gap-2">
                 <Button
                   variant="outline"
                   className="self-start"
-                  onPress={() => setIsDeleteConfirmOpen(false)}
+                  onPress={cancelDelete}
                   isDisabled={deleteRecipe.isPending}
                 >
                   <Button.Label>Annuler</Button.Label>
                 </Button>
 
-                <Button
-                  className="self-start"
-                  onPress={() => {
-                    if (recipeIdToDelete) {
-                      setIsDeleteConfirmOpen(false);
-                      deleteRecipe.mutate({ id: recipeIdToDelete });
-                    }
-                  }}
-                  isDisabled={deleteRecipe.isPending}
-                >
+                <Button className="self-start" onPress={performDelete} isDisabled={deleteRecipe.isPending}>
                   {deleteRecipe.isPending ? (
                     <Spinner size="sm" color="default" />
                   ) : (
@@ -329,10 +197,7 @@ export default function RecipeDetailsScreen() {
             <Button
               className="self-start"
               variant={isSavePanelOpen ? "outline" : "primary"}
-              onPress={() => {
-                setSaveError(null);
-                setIsSavePanelOpen((previous) => !previous);
-              }}
+              onPress={toggleSavePanel}
             >
               <Button.Label>{isSavePanelOpen ? "Fermer" : "Enregistrer"}</Button.Label>
             </Button>
@@ -364,7 +229,7 @@ export default function RecipeDetailsScreen() {
                   {createCollectionMutation.isPending ? (
                     <Spinner size="sm" color="default" />
                   ) : (
-                    <Button.Label>Creer une collection</Button.Label>
+                    <Button.Label>Créer une collection</Button.Label>
                   )}
                 </Button>
               </View>
@@ -377,7 +242,6 @@ export default function RecipeDetailsScreen() {
 
               {collectionsQuery.data?.map((collection) => {
                 const isSaving = savingCollectionId === collection.id;
-
                 return (
                   <View
                     key={collection.id}
@@ -399,7 +263,7 @@ export default function RecipeDetailsScreen() {
                       {isSaving ? (
                         <Spinner size="sm" color="default" />
                       ) : (
-                        <Button.Label>{collection.hasRecipe ? "Deja enregistree" : "Enregistrer"}</Button.Label>
+                        <Button.Label>{collection.hasRecipe ? "Déjà enregistrée" : "Enregistrer"}</Button.Label>
                       )}
                     </Button>
                   </View>
@@ -408,7 +272,7 @@ export default function RecipeDetailsScreen() {
 
               {!collectionsQuery.isLoading && !collectionsQuery.data?.length ? (
                 <Text className="text-sm text-muted-foreground">
-                  Cree d'abord une collection puis enregistre ta recette.
+                  Crée d'abord une collection puis enregistre ta recette.
                 </Text>
               ) : null}
             </View>
@@ -418,18 +282,14 @@ export default function RecipeDetailsScreen() {
         <View className="gap-2">
           <Text className="text-xl font-semibold text-foreground">Adapter les portions</Text>
           <View className="flex-row items-center gap-3">
-            <Button
-              className="self-start"
-              onPress={() => setServings((previous) => Math.max(1, previous - 1))}
-              isDisabled={servings <= 1}
-            >
+            <Button className="self-start" onPress={decrementServings} isDisabled={servings <= 1}>
               <Button.Label>-</Button.Label>
             </Button>
             <Text className="text-base text-foreground">{servings} personne{servings > 1 ? "s" : ""}</Text>
-            <Button className="self-start" onPress={() => setServings((previous) => previous + 1)}>
+            <Button className="self-start" onPress={incrementServings}>
               <Button.Label>+</Button.Label>
             </Button>
-            <Button className="self-start" onPress={() => setServings(baseServings)}>
+            <Button className="self-start" onPress={resetServings}>
               <Button.Label>Reset</Button.Label>
             </Button>
           </View>
@@ -446,12 +306,7 @@ export default function RecipeDetailsScreen() {
           {listError ? <Text className="text-sm text-danger">{listError}</Text> : null}
 
           {recipe.ingredients.map((ingredient) => {
-            const scaledQuantity = scaleIngredientQuantity(
-              ingredient.quantity,
-              baseServings,
-              servings,
-            );
-
+            const scaledQuantity = scaleQuantity(ingredient.quantity);
             return (
               <Text key={ingredient.id} className="text-base text-foreground">
                 • {scaledQuantity ? `${scaledQuantity} ` : ""}

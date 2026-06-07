@@ -18,3 +18,6 @@ export type {AuthHookDeps} from "./auth";
 
 export { useCollectionDetailsPage } from "./tabs/collection_details";
 export type { CollectionDetailsHookDeps } from "./tabs/collection_details";
+
+export { useRecipeDetail } from "./recipe_details";
+export type { RecipeDetailHookDeps } from "./recipe_details";
