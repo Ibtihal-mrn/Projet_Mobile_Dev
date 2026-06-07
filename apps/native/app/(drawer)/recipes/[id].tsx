@@ -192,6 +192,50 @@ export default function RecipeDetailsScreen() {
           ) : null}
         </View>
 
+        
+
+        <View className="gap-2">
+          <Text className="text-xl font-semibold text-foreground">Adapter les portions</Text>
+          <View className="flex-row items-center gap-3">
+            <Button className="self-start" onPress={decrementServings} isDisabled={servings <= 1}>
+              <Button.Label>-</Button.Label>
+            </Button>
+            <Text className="text-base text-foreground">{servings} personne{servings > 1 ? "s" : ""}</Text>
+            <Button className="self-start" onPress={incrementServings}>
+              <Button.Label>+</Button.Label>
+            </Button>
+            <Button className="self-start" onPress={resetServings}>
+              <Button.Label>Reset</Button.Label>
+            </Button>
+          </View>
+        </View>
+
+        <View className="gap-2">
+          <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
+
+          {listError ? <Text className="text-sm text-danger">{listError}</Text> : null}
+
+          {recipe.ingredients.map((ingredient) => {
+            const scaledQuantity = scaleQuantity(ingredient.quantity);
+            return (
+              <Text key={ingredient.id} className="text-base text-foreground">
+                • {scaledQuantity ? `${scaledQuantity} ` : ""}
+                {ingredient.unit ? `${ingredient.unit} ` : ""}
+                {ingredient.ingredient.name}
+              </Text>
+            );
+          })}
+        </View>
+
+        <View className="gap-2 pb-8">
+          <Text className="text-xl font-semibold text-foreground">Préparation</Text>
+          {recipe.steps.map((step) => (
+            <Text key={step.id} className="text-base text-foreground">
+              {step.stepOrder}. {step.content}
+            </Text>
+          ))}
+        </View>
+
         <View className="gap-2">
           <View className="flex-row gap-2">
             <Button
@@ -279,52 +323,6 @@ export default function RecipeDetailsScreen() {
           ) : null}
         </View>
 
-        <View className="gap-2">
-          <Text className="text-xl font-semibold text-foreground">Adapter les portions</Text>
-          <View className="flex-row items-center gap-3">
-            <Button className="self-start" onPress={decrementServings} isDisabled={servings <= 1}>
-              <Button.Label>-</Button.Label>
-            </Button>
-            <Text className="text-base text-foreground">{servings} personne{servings > 1 ? "s" : ""}</Text>
-            <Button className="self-start" onPress={incrementServings}>
-              <Button.Label>+</Button.Label>
-            </Button>
-            <Button className="self-start" onPress={resetServings}>
-              <Button.Label>Reset</Button.Label>
-            </Button>
-          </View>
-        </View>
-
-        <View className="gap-2">
-          <View className="flex-row items-center justify-between">
-            <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
-            <Button className="self-start" onPress={generateIngredientsList} isDisabled={isGeneratingList}>
-              {isGeneratingList ? <Spinner size="sm" color="default" /> : <Button.Label>Générer la liste</Button.Label>}
-            </Button>
-          </View>
-
-          {listError ? <Text className="text-sm text-danger">{listError}</Text> : null}
-
-          {recipe.ingredients.map((ingredient) => {
-            const scaledQuantity = scaleQuantity(ingredient.quantity);
-            return (
-              <Text key={ingredient.id} className="text-base text-foreground">
-                • {scaledQuantity ? `${scaledQuantity} ` : ""}
-                {ingredient.unit ? `${ingredient.unit} ` : ""}
-                {ingredient.ingredient.name}
-              </Text>
-            );
-          })}
-        </View>
-
-        <View className="gap-2 pb-8">
-          <Text className="text-xl font-semibold text-foreground">Préparation</Text>
-          {recipe.steps.map((step) => (
-            <Text key={step.id} className="text-base text-foreground">
-              {step.stepOrder}. {step.content}
-            </Text>
-          ))}
-        </View>
       </View>
     </Container>
   );

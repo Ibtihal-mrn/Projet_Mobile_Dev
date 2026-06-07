@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [tsconfigPaths(), tailwindcss(), tanstackStart(), nitroV2Plugin({ preset: "node-server" }), viteReact()],
   server: {
     port: 3001,
+    host : true,
     cors: {
       origin: ["http://localhost:8081"],
       credentials: true,

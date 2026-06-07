@@ -92,6 +92,7 @@ export function useRecipeForm({
       onSuccess: async (created) => {
         setFormError(null);
         await queryClient.invalidateQueries({ queryKey: orpc.recipe.list.queryKey() });
+        await queryClient.invalidateQueries({ queryKey: orpc.recipe.mine.queryKey() });
         onSaved?.(created.id);
       },
       onError: (error: Error) => applyError(error, "Impossible de créer la recette."),

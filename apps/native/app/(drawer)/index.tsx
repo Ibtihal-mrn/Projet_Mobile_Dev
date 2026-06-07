@@ -1,7 +1,7 @@
 import { Link } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button, Card } from "heroui-native";
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 import {authClient} from "@/lib/auth-client";
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
@@ -69,6 +69,7 @@ export default function HomePageScreen() {
                   }}
                   asChild
                 >
+                  <Pressable style={{ width: cardWidth }}>
                   <Card
                     variant="secondary"
                     className="overflow-hidden"
@@ -103,6 +104,7 @@ export default function HomePageScreen() {
                       </Text>
                     </View>
                   </Card>
+                  </Pressable>
                 </Link>
               </View>
             );

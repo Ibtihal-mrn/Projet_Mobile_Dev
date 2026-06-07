@@ -1,7 +1,7 @@
 import { Link } from "expo-router";
 import { Button, Input, Spinner, TextField, Card } from "heroui-native";
 import { useMemo } from "react";
-import { Text, View, Image, useWindowDimensions } from "react-native";
+import { Text, View, Image, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -124,6 +124,7 @@ export default function CollectionsScreen() {
                       }}
                       asChild
                     >
+                      <Pressable style={{ width: cardWidth }}>
                       <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
                         {/* Single image with overlay info */}
                         <View style={{ width: cardWidth, height: cardWidth, position: "relative" }}>
@@ -159,6 +160,7 @@ export default function CollectionsScreen() {
                           </View>
                         </View>
                       </Card>
+                      </Pressable>
                     </Link>
                   </View>
                 );
