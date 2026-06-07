@@ -1,55 +1,25 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Card, Spinner } from "heroui-native";
 import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
 import { orpc, queryClient } from "@/utils/orpc";
+import { useUserProfile, relationLabel } from "@my-app/hooks";
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
-
-function relationLabel(relationStatus: string) {
-  switch (relationStatus) {
-    case "self":
-      return "Ton profil";
-    case "friend":
-      return "Ami";
-    case "incoming_pending":
-      return "Demande reçue";
-    case "outgoing_pending":
-      return "Demande envoyée";
-    default:
-      return "Profil public";
-  }
-}
 
 export default function UserProfileScreen() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const profileUserId = Number(id);
-  const hasValidId = Number.isInteger(profileUserId) && profileUserId > 0;
-
-  const profileQuery = useQuery({
-    ...orpc.user.profile.queryOptions({
-      input: { userId: hasValidId ? profileUserId : 1 },
-    }),
-    enabled: hasValidId,
+  const { hasValidId, profileQuery, profile, removeFriend, removeCurrentFriend } = useUserProfile({
+    orpc,
+    queryClient,
+    profileUserId: Number(id),
+    onRemoved: () => router.back(),
   });
-
-  const removeFriend = useMutation(
-    orpc.user.removeFriend.mutationOptions({
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: orpc.user.friends.queryKey() });
-        await queryClient.invalidateQueries({
-          queryKey: orpc.user.profile.queryKey({ input: { userId: profileUserId } }),
-        });
-        router.back();
-      },
-    }),
-  );
 
   const SCREEN_PADDING = 24;
   const GAP = 12;
@@ -86,10 +56,9 @@ export default function UserProfileScreen() {
     );
   }
 
-  if (profileQuery.isError || !profileQuery.data) {
+  if (profileQuery.isError || !profile) {
     const message =
       profileQuery.error instanceof Error ? profileQuery.error.message : "Profil introuvable.";
-
     return (
       <Container className="p-6">
         <Stack.Screen options={{ title: "Profil" }} />
@@ -103,8 +72,6 @@ export default function UserProfileScreen() {
       </Container>
     );
   }
-
-  const profile = profileQuery.data;
 
   return (
     <Container className="p-6">
@@ -195,12 +162,11 @@ export default function UserProfileScreen() {
           </View>
         </View>
 
-        {/* Bouton supprimer l'ami, centré en bas */}
         {profile.relationStatus === "friend" ? (
           <View className="items-center pt-2">
             <Button
               variant="danger-soft"
-              onPress={() => removeFriend.mutate({ userId: profile.id })}
+              onPress={removeCurrentFriend}
               isDisabled={removeFriend.isPending}
             >
               {removeFriend.isPending ? (

@@ -21,3 +21,6 @@ export type { CollectionDetailsHookDeps } from "./tabs/collection_details";
 
 export { useRecipeDetail } from "./recipe_details";
 export type { RecipeDetailHookDeps } from "./recipe_details";
+
+export { relationLabel, useUserProfile } from "./user_profile";
+export type { UserProfileHookDeps } from "./user_profile";
