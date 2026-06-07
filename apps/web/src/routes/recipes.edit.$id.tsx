@@ -3,9 +3,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import { useRecipeForm } from "@my-app/hooks";
-import { RecipeFormView } from "./new";
+import { RecipeFormView } from "./recipes/new";
 
-export const Route = createFileRoute("/recipes/$id/edit")({
+export const Route = createFileRoute("/recipes/edit/$id")({
   ssr: false,
   component: EditRecipePage,
 });

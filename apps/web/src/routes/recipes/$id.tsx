@@ -100,7 +100,7 @@ function RecipeDetailPage() {
           {recipe.isOwner ? (
             <div className="flex gap-2">
               <Link
-                to="/recipes/$id/edit"
+                to="/recipes/edit/$id"
                 params={{ id }}
                 className="self-start px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm"
               >
