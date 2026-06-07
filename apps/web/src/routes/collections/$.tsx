@@ -59,9 +59,9 @@ function CollectionDetailsPage() {
           </p>
         </div>
 
-        <button onClick={handleBack} className="text-sm underline">
-          Retour
-        </button>
+        <Link to="/collections" className="self-start text-sm text-blue-500">
+        ← Retour à mes collections
+      </Link>
       </div>
 
       {collection.recipes.length === 0 ? (

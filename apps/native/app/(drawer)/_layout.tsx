@@ -163,7 +163,7 @@ function DrawerLayout() {
           },
           headerLeft: ({ tintColor }) => (
             <Pressable
-              onPress={() => (router.canGoBack() ? router.back() : router.replace("/(drawer)/(tabs)/amis"))}
+              onPress={() => router.replace("/(drawer)/(tabs)/amis")}
               className="ml-4"
             >
               <Ionicons name="arrow-back" size={22} color={tintColor ?? themeColorForeground} />

@@ -4,7 +4,7 @@ import { orpc } from "@/utils/orpc";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCollectionPage } from "@my-app/hooks";
 
-export const Route = createFileRoute("/collections")({
+export const Route = createFileRoute("/collections/")({
   ssr : false,
   component: CollectionsPage,
 });
