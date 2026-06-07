@@ -8,7 +8,6 @@ import { authClient } from "@/lib/auth-client";
 import { orpc, queryClient } from "@/utils/orpc";
 import { useAmis } from "@my-app/hooks";
 
-
 export default function AmisPage() {
   const {
     session,
@@ -20,6 +19,7 @@ export default function AmisPage() {
     searchQuery,
     sendFriendRequest,
     respondToRequest,
+    removeFriend,
     submitSearch,
   } = useAmis({ orpc, authClient, queryClient });
 
@@ -40,12 +40,10 @@ export default function AmisPage() {
 
   return (
     <Container className="p-6">
-      
       <View className="gap-4 pb-8">
         <Text className="text-3xl font-semibold text-foreground">Amis</Text>
 
         {actionError ? <Text className="text-sm text-danger">{actionError}</Text> : null}
-
 
         {/* Barre de recherche */}
         <View className="flex-row gap-2 items-end">
@@ -143,6 +141,7 @@ export default function AmisPage() {
           );
         })}
 
+        {/* Demandes reçues */}
         <View className="gap-2 rounded-xl bg-secondary p-4">
           <Text className="text-base font-semibold text-foreground">Demandes reçues</Text>
 
@@ -169,10 +168,7 @@ export default function AmisPage() {
                     size="sm"
                     variant="primary"
                     onPress={() =>
-                      respondToRequest.mutate({
-                        requestId: request.requestId,
-                        action: "accept",
-                      })
+                      respondToRequest.mutate({ requestId: request.requestId, action: "accept" })
                     }
                     isDisabled={isPending}
                   >
@@ -183,10 +179,7 @@ export default function AmisPage() {
                     size="sm"
                     variant="danger-soft"
                     onPress={() =>
-                      respondToRequest.mutate({
-                        requestId: request.requestId,
-                        action: "reject",
-                      })
+                      respondToRequest.mutate({ requestId: request.requestId, action: "reject" })
                     }
                     isDisabled={isPending}
                   >
@@ -198,6 +191,7 @@ export default function AmisPage() {
           })}
         </View>
 
+        {/* Mes amis */}
         <View className="gap-2 rounded-xl bg-secondary p-4">
           <Text className="text-base font-semibold text-foreground">Mes amis</Text>
 
@@ -211,30 +205,46 @@ export default function AmisPage() {
             <Text className="text-sm text-muted-foreground">Tu n'as pas encore d'amis.</Text>
           ) : null}
 
-          {friendsQuery.data?.map((friend) => (
-            <Link
-              key={friend.id}
-              href={{
-                pathname: "/(drawer)/users/[id]",
-                params: { id: String(friend.id) },
-              }}
-              asChild
-            >
-              <Pressable className="flex-row items-center gap-3 rounded-xl bg-background px-4 py-3">
-                <Image
-                  source={{ uri: friend.avatarUrl }}
-                  className="h-11 w-11 rounded-full bg-secondary"
-                />
-                <View className="flex-1">
-                  <Text className="text-sm font-medium text-foreground">{friend.username}</Text>
-                  <Text className="text-xs text-muted-foreground">Ouvrir le profil</Text>
-                </View>
-              </Pressable>
-            </Link>
-          ))}
-        </View>
+          {friendsQuery.data?.map((friend) => {
+            const isRemoving =
+              removeFriend.isPending && removeFriend.variables?.userId === friend.id;
 
-        
+            return (
+              <View
+                key={friend.id}
+                className="flex-row items-center gap-3 rounded-xl bg-background px-4 py-3"
+              >
+                <Link
+                  href={{
+                    pathname: "/(drawer)/users/[id]",
+                    params: { id: String(friend.id) },
+                  }}
+                  asChild
+                >
+                  <Pressable className="flex-row flex-1 items-center gap-3">
+                    <Image
+                      source={{ uri: friend.avatarUrl }}
+                      className="h-11 w-11 rounded-full bg-secondary"
+                    />
+                    <View className="flex-1">
+                      <Text className="text-sm font-medium text-foreground">{friend.username}</Text>
+                      <Text className="text-xs text-muted-foreground">Ouvrir le profil</Text>
+                    </View>
+                  </Pressable>
+                </Link>
+
+                <Button
+                  size="sm"
+                  variant="danger-soft"
+                  onPress={() => removeFriend.mutate({ userId: friend.id })}
+                  isDisabled={isRemoving}
+                >
+                  {isRemoving ? <Spinner size="sm" /> : <Button.Label>Supprimer</Button.Label>}
+                </Button>
+              </View>
+            );
+          })}
+        </View>
       </View>
     </Container>
   );

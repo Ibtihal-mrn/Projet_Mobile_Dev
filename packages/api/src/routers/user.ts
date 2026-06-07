@@ -418,6 +418,43 @@ const userRouter = {
       return { success: true, accepted: true };
     }),
 
+  
+  // Supprime un ami : retire la relation dans les deux sens + nettoie les demandes.
+  removeFriend: protectedProcedure
+    .input(z.object({ userId: z.number().int().positive() }))
+    .handler(async ({ input, context }) => {
+      const currentAppUser = await ensureCurrentAppUser(
+        context.session.user.email,
+      );
+
+      if (currentAppUser.id === input.userId) {
+        throw new ORPCError("BAD_REQUEST", { message: "Action invalide." });
+      }
+
+      await prisma.$transaction([
+        // les deux follow (A→B et B→A)
+        prisma.follow.deleteMany({
+          where: {
+            OR: [
+              { followerId: currentAppUser.id, followingId: input.userId },
+              { followerId: input.userId, followingId: currentAppUser.id },
+            ],
+          },
+        }),
+        // les demandes d'ami entre les deux (sinon état incohérent pour re-ajouter)
+        prisma.friendRequest.deleteMany({
+          where: {
+            OR: [
+              { senderId: currentAppUser.id, receiverId: input.userId },
+              { senderId: input.userId, receiverId: currentAppUser.id },
+            ],
+          },
+        }),
+      ]);
+
+      return { success: true };
+    }),
+    
   // Liste des amis de l'utilisateur connecté.
   friends: protectedProcedure.handler(async ({ context }) => {
     const currentAppUser = await ensureCurrentAppUser(

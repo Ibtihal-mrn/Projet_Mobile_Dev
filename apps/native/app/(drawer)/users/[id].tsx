@@ -1,10 +1,10 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
-import { Card, Spinner } from "heroui-native";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Button, Card, Spinner } from "heroui-native";
 import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
-import { orpc } from "@/utils/orpc";
+import { orpc, queryClient } from "@/utils/orpc";
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
@@ -38,6 +38,18 @@ export default function UserProfileScreen() {
     }),
     enabled: hasValidId,
   });
+
+  const removeFriend = useMutation(
+    orpc.user.removeFriend.mutationOptions({
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: orpc.user.friends.queryKey() });
+        await queryClient.invalidateQueries({
+          queryKey: orpc.user.profile.queryKey({ input: { userId: profileUserId } }),
+        });
+        router.back();
+      },
+    }),
+  );
 
   const SCREEN_PADDING = 24;
   const GAP = 12;
@@ -129,8 +141,6 @@ export default function UserProfileScreen() {
         </View>
 
         <View className="gap-3">
-
-
           {!profile.recipes.length ? (
             <Text className="text-sm text-foreground">Aucune recette créée pour le moment.</Text>
           ) : null}
@@ -143,17 +153,10 @@ export default function UserProfileScreen() {
               return (
                 <View
                   key={recipe.id}
-                  style={{
-                    width: cardWidth,
-                    marginRight: isLastInRow ? 0 : GAP,
-                    marginBottom: GAP,
-                  }}
+                  style={{ width: cardWidth, marginRight: isLastInRow ? 0 : GAP, marginBottom: GAP }}
                 >
                   <Link
-                    href={{
-                      pathname: "/(drawer)/recipes/[id]",
-                      params: { id: String(recipe.id) },
-                    }}
+                    href={{ pathname: "/(drawer)/recipes/[id]", params: { id: String(recipe.id) } }}
                     asChild
                   >
                     <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
@@ -191,6 +194,23 @@ export default function UserProfileScreen() {
             })}
           </View>
         </View>
+
+        {/* Bouton supprimer l'ami, centré en bas */}
+        {profile.relationStatus === "friend" ? (
+          <View className="items-center pt-2">
+            <Button
+              variant="danger-soft"
+              onPress={() => removeFriend.mutate({ userId: profile.id })}
+              isDisabled={removeFriend.isPending}
+            >
+              {removeFriend.isPending ? (
+                <Spinner size="sm" />
+              ) : (
+                <Button.Label>Supprimer l'ami</Button.Label>
+              )}
+            </Button>
+          </View>
+        ) : null}
       </View>
     </Container>
   );

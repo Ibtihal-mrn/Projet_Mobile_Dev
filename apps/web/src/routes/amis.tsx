@@ -13,8 +13,6 @@ export const Route = createFileRoute("/amis")({
   component: AmisPage,
 });
 
-
-
 function AmisPage() {
   const queryClient = useQueryClient();
   const {
@@ -27,6 +25,7 @@ function AmisPage() {
     searchQuery,
     sendFriendRequest,
     respondToRequest,
+    removeFriend,
     submitSearch,
   } = useAmis({ orpc, authClient, queryClient });
 
@@ -154,15 +153,29 @@ function AmisPage() {
         {Array.isArray(friendsQuery.data) && friendsQuery.data.length === 0 ? (
           <p className="text-sm text-muted-foreground">Tu n'as pas encore d'amis.</p>
         ) : null}
-        {(Array.isArray(friendsQuery.data) ? friendsQuery.data : []).map((friend: any) => (
-          <a key={friend.id} href={`/users/${friend.id}`} className="flex items-center gap-3 rounded-xl bg-background px-4 py-3">
-            <img src={friend.avatarUrl} className="h-11 w-11 rounded-full bg-secondary object-cover" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">{friend.username}</p>
-              <p className="text-xs text-muted-foreground">Ouvrir le profil</p>
+        {(Array.isArray(friendsQuery.data) ? friendsQuery.data : []).map((friend: any) => {
+          const isRemoving =
+            removeFriend.isPending && (removeFriend.variables)?.userId === friend.id;
+
+          return (
+            <div key={friend.id} className="flex items-center gap-3 rounded-xl bg-background px-4 py-3">
+              <a href={`/users/${friend.id}`} className="flex flex-1 items-center gap-3">
+                <img src={friend.avatarUrl} className="h-11 w-11 rounded-full bg-secondary object-cover" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{friend.username}</p>
+                  <p className="text-xs text-muted-foreground">Ouvrir le profil</p>
+                </div>
+              </a>
+              <button
+                onClick={() => removeFriend.mutate({ userId: friend.id })}
+                disabled={isRemoving}
+                className="px-3 py-1 text-sm rounded-lg bg-destructive text-destructive-foreground disabled:opacity-50"
+              >
+                {isRemoving ? "..." : "Supprimer"}
+              </button>
             </div>
-          </a>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

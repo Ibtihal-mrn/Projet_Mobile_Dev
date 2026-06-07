@@ -155,6 +155,43 @@ export function useAmis({ orpc, authClient, queryClient }: AmisHookDeps) {
     }),
   );
 
+  const removeFriend = useMutation(
+    orpc.user.removeFriend.mutationOptions({
+      onMutate: async (variables) => {
+        type FriendsData = NonNullable<typeof friendsQuery.data>;
+        const friendsKey = orpc.user.friends.queryKey();
+
+        await queryClient.cancelQueries({ queryKey: friendsKey });
+        const previousFriends = queryClient.getQueryData<FriendsData>(friendsKey);
+
+        // retrait optimiste de la liste d'amis
+        queryClient.setQueryData<FriendsData>(friendsKey, (old) =>
+          old ? old.filter((f) => f.id !== variables.userId) : old,
+        );
+
+        return { previousFriends, friendsKey };
+      },
+      onSuccess: () => {
+        setActionError(null);
+      },
+      onError: (error: Error, _variables, context) => {
+        if (context) {
+          queryClient.setQueryData(context.friendsKey, context.previousFriends);
+        }
+        setActionError(error.message || "Impossible de supprimer cet ami.");
+      },
+      onSettled: (_data, _error, _variables, context) => {
+        if (context) {
+          queryClient.invalidateQueries({ queryKey: context.friendsKey });
+        }
+        // la recherche peut encore l'afficher en "friend" → resync
+        queryClient.invalidateQueries({
+          queryKey: orpc.user.search.queryKey({ input: { query } }),
+        });
+      },
+    }),
+  );
+
   function submitSearch() {
     const trimmed = searchInput.trim();
     if (trimmed) setQuery(trimmed);
@@ -172,6 +209,7 @@ export function useAmis({ orpc, authClient, queryClient }: AmisHookDeps) {
     searchQuery,
     sendFriendRequest,
     respondToRequest,
+    removeFriend,
     submitSearch,
   };
 }
