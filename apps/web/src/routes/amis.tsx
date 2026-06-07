@@ -5,11 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAmis } from "@my-app/hooks";
 
 export const Route = createFileRoute("/amis")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      context.orpc.recipe.list.queryOptions(),
-    );
-  },
   component: AmisPage,
 });
 

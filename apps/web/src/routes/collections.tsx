@@ -5,11 +5,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCollectionPage } from "@my-app/hooks";
 
 export const Route = createFileRoute("/collections")({
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(
-      context.orpc.collection.listMine.queryOptions(),
-    );
-  },
   component: CollectionsPage,
 });
 
