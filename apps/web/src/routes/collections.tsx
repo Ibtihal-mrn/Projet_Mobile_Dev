@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { orpc, queryClient } from "@/utils/orpc";
+import { orpc } from "@/utils/orpc";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCollectionPage } from "@my-app/hooks";
-
 
 export const Route = createFileRoute("/collections")({
   loader: async ({ context }) => {
@@ -13,7 +13,10 @@ export const Route = createFileRoute("/collections")({
   component: CollectionsPage,
 });
 
+
+
 function CollectionsPage() {
+  const queryClient = useQueryClient();
   const {
     session,
     collectionsQuery,
@@ -114,4 +117,3 @@ function CollectionsPage() {
     </div>
   );
 }
-// test
