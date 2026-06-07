@@ -1,6 +1,6 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Button, Card, Spinner } from "heroui-native";
-import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
+import { Image, Text, View, useWindowDimensions} from "react-native";
 
 import { Container } from "@/components/container";
 import { orpc, queryClient } from "@/utils/orpc";
@@ -31,9 +31,6 @@ export default function UserProfileScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ title: "Profil" }} />
-        <Pressable onPress={() => router.back()} className="mb-4">
-          <Text className="text-base text-blue-500">← Retour</Text>
-        </Pressable>
         <View className="flex-1 items-center justify-center">
           <Text className="text-lg text-foreground">Profil introuvable.</Text>
         </View>
@@ -45,9 +42,6 @@ export default function UserProfileScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ title: "Profil" }} />
-        <Pressable onPress={() => router.back()} className="mb-4">
-          <Text className="text-base text-blue-500">← Retour</Text>
-        </Pressable>
         <View className="flex-1 items-center justify-center gap-3">
           <Spinner size="lg" color="default" />
           <Text className="text-base text-foreground">Chargement du profil...</Text>
@@ -62,9 +56,6 @@ export default function UserProfileScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ title: "Profil" }} />
-        <Pressable onPress={() => router.back()} className="mb-4">
-          <Text className="text-base text-blue-500">← Retour</Text>
-        </Pressable>
         <View className="flex-1 items-center justify-center gap-2">
           <Text className="text-lg text-foreground">Profil introuvable.</Text>
           <Text className="text-sm text-danger">{message}</Text>
@@ -77,9 +68,6 @@ export default function UserProfileScreen() {
     <Container className="p-6">
       <Stack.Screen options={{ title: profile.username }} />
 
-      <Pressable onPress={() => router.back()} className="mb-4">
-        <Text className="text-base text-blue-500">← Retour</Text>
-      </Pressable>
 
       <View className="gap-5 pb-8">
         <View className="flex-row items-center gap-4 rounded-3xl bg-secondary p-4">

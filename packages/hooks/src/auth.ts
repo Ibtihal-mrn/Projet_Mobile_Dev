@@ -33,8 +33,8 @@ export function useAuth({ authClient, queryClient }: AuthHookDeps) {
 
       await authClient.signOut({
         fetchOptions: {
-          onSuccess: async () => {
-            await queryClient.invalidateQueries();
+          onSuccess: () => {
+            queryClient.clear();
           },
         },
       });

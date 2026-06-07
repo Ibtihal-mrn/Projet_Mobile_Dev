@@ -19,7 +19,7 @@ export default function CollectionDetailsScreen() {
   } = useCollectionDetailsPage({ orpc, collectionId: String(id) });
 
   const handleBack = () => {
-    router.back();
+    router.navigate("/collections");
   };  
   
   const SCREEN_PADDING = 24;

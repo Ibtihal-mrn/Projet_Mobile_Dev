@@ -90,13 +90,13 @@ function AmisPage() {
 
         return (
           <div key={user.id} className="flex items-center gap-3 rounded-xl bg-secondary px-4 py-3">
-            <a href={`/users/${user.id}`} className="flex flex-1 items-center gap-3">
+            <Link to="/users/$id" params={{ id: String(user.id) }} className="flex flex-1 items-center gap-3">
               <img src={user.avatarUrl} className="h-11 w-11 rounded-full bg-background object-cover" />
               <div className="flex-1">
                 <p className="text-base font-medium">{user.username}</p>
                 <p className="text-xs text-muted-foreground">Voir le profil</p>
               </div>
-            </a>
+            </Link>
             <button
               onClick={() => sendFriendRequest.mutate({ userId: user.id })}
               disabled={isPending || !canSendRequest}
@@ -154,13 +154,13 @@ function AmisPage() {
 
           return (
             <div key={friend.id} className="flex items-center gap-3 rounded-xl bg-background px-4 py-3">
-              <a href={`/users/${friend.id}`} className="flex flex-1 items-center gap-3">
+              <Link to="/users/$id" params={{ id: String(friend.id) }} className="flex flex-1 items-center gap-3">
                 <img src={friend.avatarUrl} className="h-11 w-11 rounded-full bg-secondary object-cover" />
                 <div className="flex-1">
                   <p className="text-sm font-medium">{friend.username}</p>
                   <p className="text-xs text-muted-foreground">Ouvrir le profil</p>
                 </div>
-              </a>
+              </Link>
               <button
                 onClick={() => removeFriend.mutate({ userId: friend.id })}
                 disabled={isRemoving}

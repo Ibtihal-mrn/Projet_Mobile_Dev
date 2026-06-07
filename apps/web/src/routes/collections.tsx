@@ -88,6 +88,14 @@ function CollectionsPage() {
               const collectionImage = collection.imageUrls?.[0] ?? fallbackRecipeImage;
 
               return (
+
+                <Link
+                  key={collection.id}
+                  to="/collections/$"
+                  params={{ _splat: String(collection.id) }}
+                  className="block overflow-hidden rounded-xl bg-secondary transition-transform hover:-translate-y-0.5 hover:shadow-lg"
+                >
+    
                 <article key={collection.id} className="overflow-hidden rounded-xl bg-secondary">
                   <div className="relative">
                     <img
@@ -105,6 +113,7 @@ function CollectionsPage() {
                     </div>
                   </div>
                 </article>
+                </Link>
               );
             })}
           </div>

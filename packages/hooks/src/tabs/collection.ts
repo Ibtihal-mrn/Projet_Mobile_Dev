@@ -32,18 +32,40 @@ export function useCollectionPage({
   });
 
   const createCollectionMutation = useMutation(
-    orpc.collection.create.mutationOptions({
-      onSuccess: async () => {
-        setActionError(null);
-        setNewCollectionName("");
-        await queryClient.invalidateQueries({
-          queryKey: orpc.collection.listMine.queryKey(),
-        });
-      },
-      onError: (error: any) => {
-        setActionError(error?.message || "Impossible de creer la collection.");
-      },
-    }));
+  orpc.collection.create.mutationOptions({
+    onMutate: async (variables: { name: string }) => {
+      setActionError(null);
+      const listKey = orpc.collection.listMine.queryKey();
+      await queryClient.cancelQueries({ queryKey: listKey });
+      const previous = queryClient.getQueryData(listKey);
+
+      // insertion optimiste d'une collection temporaire
+      queryClient.setQueryData(listKey, (old: any) => {
+        const optimistic = {
+          id: -Date.now(),                  // id temporaire négatif
+          name: variables.name,
+          createdAt: new Date().toISOString(),
+          recipesCount: 0,
+          imageUrls: [],
+          hasRecipe: false,
+        };
+        return Array.isArray(old) ? [optimistic, ...old] : [optimistic];
+      });
+
+      setNewCollectionName("");
+      return { previous, listKey };
+    },
+    onError: (error: any, _vars, context: any) => {
+      if (context?.previous !== undefined) {
+        queryClient.setQueryData(context.listKey, context.previous); // rollback
+      }
+      setActionError(error?.message || "Impossible de creer la collection.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: orpc.collection.listMine.queryKey() });
+    },
+  }),
+);
 
   const collectionsErrorMessage = useMemo(() => {
     if (!collectionsQuery.isError) {
