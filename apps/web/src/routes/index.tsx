@@ -50,7 +50,8 @@ function HomeComponent() {
             return (
               <Link
                 key={recipe.id}
-                to={`/recipes/${recipe.id}` as any}
+                to="/recipes/$id"
+                  params={{ id: String(recipe.id) }}
                 className="group overflow-hidden rounded-xl bg-secondary transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <article className="flex h-full flex-col overflow-hidden">
