@@ -27,6 +27,7 @@ RUN pnpm --filter @my-better-t-app/db run db:generate
 RUN pnpm --filter web run build
 
 EXPOSE 3001
+ENV PORT=3001
 
 # 5. servir le bundle de production
-CMD ["pnpm", "--filter", "web", "exec", "vite", "preview", "--host", "--port", "3001"]
+CMD ["node", "apps/web/.output/server/index.mjs"]

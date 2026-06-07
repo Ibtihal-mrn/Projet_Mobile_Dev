@@ -7,7 +7,7 @@ import { useCollectionPage } from "@my-app/hooks";
 export const Route = createFileRoute("/collections")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
-      context.orpc.recipe.list.queryOptions(),
+      context.orpc.collection.listMine.queryOptions(),
     );
   },
   component: CollectionsPage,

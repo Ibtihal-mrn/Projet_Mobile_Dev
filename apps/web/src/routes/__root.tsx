@@ -37,6 +37,13 @@ export const Route = createRootRouteWithContext<RouterAppContext>()({
     ],
   }),
 
+  errorComponent: ({ error }) => (
+    <div className="p-6 flex flex-col gap-2">
+      <h1 className="text-xl font-semibold">Une erreur est survenue</h1>
+      <p className="text-sm text-red-500">{error.message}</p>
+    </div>
+  ),
+
   component: RootDocument,
 });
 
