@@ -30,10 +30,18 @@ function MyRecipesPage() {
 
   return (
     <div className="p-6 flex flex-col gap-4">
+      <div>
       <h1 className="text-3xl font-semibold">Mes recettes</h1>
       <p className="text-sm text-muted-foreground">
         Retrouve uniquement les recettes que tu as créées.
       </p>
+      </div>
+      <Link
+          to="/recipes/new"
+          className="shrink-0 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+        >
+          + Nouvelle recette
+        </Link>
 
       {recipes.isLoading ? (
         <p className="text-sm text-muted-foreground">Chargement des recettes...</p>
@@ -52,6 +60,14 @@ function MyRecipesPage() {
           const imageUrl = recipe.imageUrl ?? fallbackRecipeImage;
 
           return (
+
+            <Link
+              key={recipe.id}
+              to="/recipes/$id"
+              params={{ id: String(recipe.id) }}
+              className="rounded-xl bg-secondary overflow-hidden block hover:-translate-y-0.5 transition-transform"
+            >
+              
             <article
               key={recipe.id}
               className="rounded-xl bg-secondary overflow-hidden"
@@ -81,6 +97,9 @@ function MyRecipesPage() {
                 <p className="text-xs line-clamp-2">{recipe.description}</p>
               </div>
             </article>
+          
+          </Link>
+
           );
         })}
       </div>

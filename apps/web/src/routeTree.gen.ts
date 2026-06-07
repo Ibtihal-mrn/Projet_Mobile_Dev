@@ -17,8 +17,10 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AmisRouteImport } from './routes/amis'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UsersIdRouteImport } from './routes/users/$id'
+import { Route as RecipesNewRouteImport } from './routes/recipes/new'
 import { Route as RecipesIdRouteImport } from './routes/recipes/$id'
 import { Route as CollectionsSplatRouteImport } from './routes/collections/$'
+import { Route as RecipesIdEditRouteImport } from './routes/recipes/$id.edit'
 import { Route as ApiRpcSplatRouteImport } from './routes/api/rpc/$'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -62,6 +64,11 @@ const UsersIdRoute = UsersIdRouteImport.update({
   path: '/users/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecipesNewRoute = RecipesNewRouteImport.update({
+  id: '/recipes/new',
+  path: '/recipes/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecipesIdRoute = RecipesIdRouteImport.update({
   id: '/recipes/$id',
   path: '/recipes/$id',
@@ -71,6 +78,11 @@ const CollectionsSplatRoute = CollectionsSplatRouteImport.update({
   id: '/$',
   path: '/$',
   getParentRoute: () => CollectionsRoute,
+} as any)
+const RecipesIdEditRoute = RecipesIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => RecipesIdRoute,
 } as any)
 const ApiRpcSplatRoute = ApiRpcSplatRouteImport.update({
   id: '/api/rpc/$',
@@ -92,10 +104,12 @@ export interface FileRoutesByFullPath {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
-  '/recipes/$id': typeof RecipesIdRoute
+  '/recipes/$id': typeof RecipesIdRouteWithChildren
+  '/recipes/new': typeof RecipesNewRoute
   '/users/$id': typeof UsersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/recipes/$id/edit': typeof RecipesIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -106,10 +120,12 @@ export interface FileRoutesByTo {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
-  '/recipes/$id': typeof RecipesIdRoute
+  '/recipes/$id': typeof RecipesIdRouteWithChildren
+  '/recipes/new': typeof RecipesNewRoute
   '/users/$id': typeof UsersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/recipes/$id/edit': typeof RecipesIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -121,10 +137,12 @@ export interface FileRoutesById {
   '/my_recipes': typeof My_recipesRoute
   '/search': typeof SearchRoute
   '/collections/$': typeof CollectionsSplatRoute
-  '/recipes/$id': typeof RecipesIdRoute
+  '/recipes/$id': typeof RecipesIdRouteWithChildren
+  '/recipes/new': typeof RecipesNewRoute
   '/users/$id': typeof UsersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/rpc/$': typeof ApiRpcSplatRoute
+  '/recipes/$id/edit': typeof RecipesIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,9 +156,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/collections/$'
     | '/recipes/$id'
+    | '/recipes/new'
     | '/users/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/recipes/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,9 +172,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/collections/$'
     | '/recipes/$id'
+    | '/recipes/new'
     | '/users/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/recipes/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -166,9 +188,11 @@ export interface FileRouteTypes {
     | '/search'
     | '/collections/$'
     | '/recipes/$id'
+    | '/recipes/new'
     | '/users/$id'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/recipes/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,7 +203,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   My_recipesRoute: typeof My_recipesRoute
   SearchRoute: typeof SearchRoute
-  RecipesIdRoute: typeof RecipesIdRoute
+  RecipesIdRoute: typeof RecipesIdRouteWithChildren
+  RecipesNewRoute: typeof RecipesNewRoute
   UsersIdRoute: typeof UsersIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiRpcSplatRoute: typeof ApiRpcSplatRoute
@@ -243,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recipes/new': {
+      id: '/recipes/new'
+      path: '/recipes/new'
+      fullPath: '/recipes/new'
+      preLoaderRoute: typeof RecipesNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recipes/$id': {
       id: '/recipes/$id'
       path: '/recipes/$id'
@@ -256,6 +288,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/collections/$'
       preLoaderRoute: typeof CollectionsSplatRouteImport
       parentRoute: typeof CollectionsRoute
+    }
+    '/recipes/$id/edit': {
+      id: '/recipes/$id/edit'
+      path: '/edit'
+      fullPath: '/recipes/$id/edit'
+      preLoaderRoute: typeof RecipesIdEditRouteImport
+      parentRoute: typeof RecipesIdRoute
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -286,6 +325,18 @@ const CollectionsRouteWithChildren = CollectionsRoute._addFileChildren(
   CollectionsRouteChildren,
 )
 
+interface RecipesIdRouteChildren {
+  RecipesIdEditRoute: typeof RecipesIdEditRoute
+}
+
+const RecipesIdRouteChildren: RecipesIdRouteChildren = {
+  RecipesIdEditRoute: RecipesIdEditRoute,
+}
+
+const RecipesIdRouteWithChildren = RecipesIdRoute._addFileChildren(
+  RecipesIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AmisRoute: AmisRoute,
@@ -294,7 +345,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   My_recipesRoute: My_recipesRoute,
   SearchRoute: SearchRoute,
-  RecipesIdRoute: RecipesIdRoute,
+  RecipesIdRoute: RecipesIdRouteWithChildren,
+  RecipesNewRoute: RecipesNewRoute,
   UsersIdRoute: UsersIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiRpcSplatRoute: ApiRpcSplatRoute,

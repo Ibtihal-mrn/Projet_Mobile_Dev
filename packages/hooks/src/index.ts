@@ -24,3 +24,6 @@ export type { RecipeDetailHookDeps } from "./recipe_details";
 
 export { relationLabel, useUserProfile } from "./user_profile";
 export type { UserProfileHookDeps } from "./user_profile";
+
+export { useRecipeForm } from "./recipe_form";
+export type { RecipeFormDeps } from "./recipe_form";

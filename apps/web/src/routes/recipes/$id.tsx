@@ -1,8 +1,9 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 import { orpc } from "@/utils/orpc";
 import { useRecipeDetail } from "@my-app/hooks";
+
 
 const FALLBACK_RECIPE_IMAGE =
   "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80";
@@ -73,6 +74,11 @@ function RecipeDetailPage() {
 
   return (
     <div className="pb-10">
+
+      <Link to="/my_recipes" className="self-start text-sm text-blue-500">
+        ← Retour à mes recettes
+      </Link>
+      
       <img src={imageUrl} alt={recipe.title} className="h-64 w-full object-cover" />
 
       <div className="px-6 pt-5 flex flex-col gap-5 max-w-3xl">
@@ -93,6 +99,13 @@ function RecipeDetailPage() {
 
           {recipe.isOwner ? (
             <div className="flex gap-2">
+              <Link
+                to="/recipes/$id/edit"
+                params={{ id }}
+                className="self-start px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm"
+              >
+                Modifier
+              </Link>
               <button
                 onClick={confirmDelete}
                 disabled={deleteRecipe.isPending}

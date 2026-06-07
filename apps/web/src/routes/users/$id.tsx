@@ -42,6 +42,12 @@ function UserProfilePage() {
 
   return (
     <div className="p-6 flex flex-col gap-5 max-w-4xl">
+      <button
+        onClick={() => navigate({ to: "/amis" })}
+        className="self-start text-sm text-blue-500"
+      >
+        ← Retour aux amis
+      </button>
       <div className="flex items-center gap-4 rounded-3xl bg-secondary p-4">
         <img src={profile.avatarUrl} alt={profile.username} className="h-20 w-20 rounded-full object-cover bg-background" />
         <div className="flex flex-1 flex-col gap-2">
