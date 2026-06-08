@@ -1,7 +1,7 @@
 import { Link, Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { Card } from "heroui-native";
 import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
-
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
 import { useCollectionDetailsPage } from "@my-app/hooks";
@@ -11,7 +11,7 @@ export default function CollectionDetailsScreen() {
   const { width } = useWindowDimensions();
   const { id } = useLocalSearchParams();
   const router = useRouter();
-
+  const insets = useSafeAreaInsets();
   const {
     collectionQuery,
     hasValidId,
@@ -32,7 +32,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={handleBack} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} style={{ marginTop: insets.top }} className="mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center">
@@ -46,7 +46,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={handleBack} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} style={{ marginTop: insets.top }} className="mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center">
@@ -65,7 +65,7 @@ export default function CollectionDetailsScreen() {
     return (
       <Container className="p-6">
         <Stack.Screen options={{ headerShown: false }} />
-        <Pressable onPress={handleBack} className="mt-4 mb-2">
+        <Pressable onPress={handleBack} style={{ marginTop: insets.top }} className="mb-2">
           <Text className="text-base text-blue-500">← Retour</Text>
         </Pressable>
         <View className="flex-1 items-center justify-center gap-2">
@@ -82,7 +82,7 @@ export default function CollectionDetailsScreen() {
     <Container className="p-6">
       <Stack.Screen options={{ headerShown: false }} />
 
-      <Pressable onPress={handleBack} className="mt-4 mb-2">
+      <Pressable onPress={handleBack} style={{ marginTop: insets.top }} className="mb-2">
         <Text className="text-base text-blue-500">← Retour</Text>
       </Pressable>
 
@@ -119,6 +119,7 @@ export default function CollectionDetailsScreen() {
                   }}
                   asChild
                 >
+                  <Pressable style={{ width: cardWidth }}>
                   <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
                     <Image
                       source={{ uri: imageUrl }}
@@ -152,6 +153,7 @@ export default function CollectionDetailsScreen() {
                       </Text>
                     </View>
                   </Card>
+                  </Pressable>
                 </Link>
               </View>
             );

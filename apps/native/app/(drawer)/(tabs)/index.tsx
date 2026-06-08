@@ -1,6 +1,6 @@
 import { Link } from "expo-router";
 import { Button, Card } from "heroui-native";
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 
 import { Container } from "@/components/container";
 import { SignIn } from "@/components/sign-in";
@@ -86,6 +86,7 @@ export default function Home() {
                   marginBottom: GAP,
                 }}
               >
+
                 <Link
                   href={{
                     pathname: "/(drawer)/recipes/[id]",
@@ -93,6 +94,8 @@ export default function Home() {
                   }}
                   asChild
                 >
+
+                  <Pressable style={{ width: cardWidth }}>
                   <Card
                     variant="secondary"
                     className="overflow-hidden"
@@ -127,6 +130,7 @@ export default function Home() {
                       </Text>
                     </View>
                   </Card>
+                  </Pressable>
                 </Link>
               </View>
             );

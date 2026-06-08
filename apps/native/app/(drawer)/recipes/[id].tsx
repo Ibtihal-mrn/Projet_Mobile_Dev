@@ -76,7 +76,9 @@ export default function RecipeDetailsScreen() {
       );
     } catch (error) {
       setListError(
-        error instanceof Error ? error.message : "Impossible de générer la liste de courses en PDF.",
+        error instanceof Error
+          ? error.message
+          : "Impossible de générer la liste de courses en PDF.",
       );
     } finally {
       setIsGeneratingList(false);
@@ -99,7 +101,9 @@ export default function RecipeDetailsScreen() {
       <Container className="p-6">
         <Stack.Screen options={{ title: "Recette" }} />
         <View className="flex-1 items-center justify-center">
-          <Text className="text-base text-foreground">Chargement de la recette...</Text>
+          <Text className="text-base text-foreground">
+            Chargement de la recette...
+          </Text>
         </View>
       </Container>
     );
@@ -122,15 +126,29 @@ export default function RecipeDetailsScreen() {
     <Container className="pb-6">
       <Stack.Screen options={{ title: recipe.title }} />
 
-      <Image source={{ uri: imageUrl }} className="h-64 w-full" resizeMode="cover" />
+      <Image
+        source={{ uri: imageUrl }}
+        className="h-64 w-full"
+        resizeMode="cover"
+      />
 
       <View className="px-6 pt-5 gap-5">
         <View className="gap-2">
-          <Text className="text-3xl font-semibold text-foreground">{recipe.title}</Text>
-          <Text className="text-sm font-medium text-foreground">Auteur: {authorLabel}</Text>
-          <Text className="text-base text-foreground">{recipe.description}</Text>
-          <Text className="text-sm text-foreground">Préparation: {recipe.prepTime} min</Text>
-          <Text className="text-sm text-foreground">Portions de base: {baseServings}</Text>
+          <Text className="text-3xl font-semibold text-foreground">
+            {recipe.title}
+          </Text>
+          <Text className="text-sm font-medium text-foreground">
+            Auteur: {authorLabel}
+          </Text>
+          <Text className="text-base text-foreground">
+            {recipe.description}
+          </Text>
+          <Text className="text-sm text-foreground">
+            Préparation: {recipe.prepTime} min
+          </Text>
+          <Text className="text-sm text-foreground">
+            Portions de base: {baseServings}
+          </Text>
 
           {recipe.showVisibilityBadge ? (
             <View className="self-start rounded-full bg-secondary px-3 py-1">
@@ -140,20 +158,32 @@ export default function RecipeDetailsScreen() {
             </View>
           ) : null}
 
-          {deleteError ? <Text className="text-sm text-danger">{deleteError}</Text> : null}
+          {deleteError ? (
+            <Text className="text-sm text-danger">{deleteError}</Text>
+          ) : null}
 
           {recipe.isOwner ? (
             <View className="flex-row gap-2">
               <Link
-                href={{ pathname: "/(drawer)/recipes/edit/[id]", params: { id: String(recipe.id) } }}
+                href={{
+                  pathname: "/(drawer)/recipes/edit/[id]",
+                  params: { id: String(recipe.id) },
+                }}
                 asChild
               >
-                <Button className="self-start" isDisabled={deleteRecipe.isPending}>
+                <Button
+                  className="self-start"
+                  isDisabled={deleteRecipe.isPending}
+                >
                   <Button.Label>Modifier</Button.Label>
                 </Button>
               </Link>
 
-              <Button className="self-start" onPress={confirmDelete} isDisabled={deleteRecipe.isPending}>
+              <Button
+                className="self-start"
+                onPress={confirmDelete}
+                isDisabled={deleteRecipe.isPending}
+              >
                 {deleteRecipe.isPending ? (
                   <Spinner size="sm" color="default" />
                 ) : (
@@ -165,9 +195,12 @@ export default function RecipeDetailsScreen() {
 
           {isDeleteConfirmOpen ? (
             <View className="gap-3 rounded-2xl border border-danger/30 bg-danger/10 p-4">
-              <Text className="text-base font-semibold text-foreground">Supprimer la recette ?</Text>
+              <Text className="text-base font-semibold text-foreground">
+                Supprimer la recette ?
+              </Text>
               <Text className="text-sm text-foreground">
-                Cette action est définitive. La recette sera supprimée pour de bon.
+                Cette action est définitive. La recette sera supprimée pour de
+                bon.
               </Text>
 
               <View className="flex-row gap-2">
@@ -180,7 +213,11 @@ export default function RecipeDetailsScreen() {
                   <Button.Label>Annuler</Button.Label>
                 </Button>
 
-                <Button className="self-start" onPress={performDelete} isDisabled={deleteRecipe.isPending}>
+                <Button
+                  className="self-start"
+                  onPress={performDelete}
+                  isDisabled={deleteRecipe.isPending}
+                >
                   {deleteRecipe.isPending ? (
                     <Spinner size="sm" color="default" />
                   ) : (
@@ -192,15 +229,21 @@ export default function RecipeDetailsScreen() {
           ) : null}
         </View>
 
-        
-
         <View className="gap-2">
-          <Text className="text-xl font-semibold text-foreground">Adapter les portions</Text>
+          <Text className="text-xl font-semibold text-foreground">
+            Adapter les portions
+          </Text>
           <View className="flex-row items-center gap-3">
-            <Button className="self-start" onPress={decrementServings} isDisabled={servings <= 1}>
+            <Button
+              className="self-start"
+              onPress={decrementServings}
+              isDisabled={servings <= 1}
+            >
               <Button.Label>-</Button.Label>
             </Button>
-            <Text className="text-base text-foreground">{servings} personne{servings > 1 ? "s" : ""}</Text>
+            <Text className="text-base text-foreground">
+              {servings} personne{servings > 1 ? "s" : ""}
+            </Text>
             <Button className="self-start" onPress={incrementServings}>
               <Button.Label>+</Button.Label>
             </Button>
@@ -211,9 +254,13 @@ export default function RecipeDetailsScreen() {
         </View>
 
         <View className="gap-2">
-          <Text className="text-xl font-semibold text-foreground">Ingrédients</Text>
+          <Text className="text-xl font-semibold text-foreground">
+            Ingrédients
+          </Text>
 
-          {listError ? <Text className="text-sm text-danger">{listError}</Text> : null}
+          {listError ? (
+            <Text className="text-sm text-danger">{listError}</Text>
+          ) : null}
 
           {recipe.ingredients.map((ingredient) => {
             const scaledQuantity = scaleQuantity(ingredient.quantity);
@@ -228,7 +275,9 @@ export default function RecipeDetailsScreen() {
         </View>
 
         <View className="gap-2 pb-8">
-          <Text className="text-xl font-semibold text-foreground">Préparation</Text>
+          <Text className="text-xl font-semibold text-foreground">
+            Préparation
+          </Text>
           {recipe.steps.map((step) => (
             <Text key={step.id} className="text-base text-foreground">
               {step.stepOrder}. {step.content}
@@ -237,21 +286,38 @@ export default function RecipeDetailsScreen() {
         </View>
 
         <View className="gap-2">
-          <View className="flex-row gap-2">
+          <View className="flex-row gap-3">
             <Button
-              className="self-start"
+              className="flex-1"
               variant={isSavePanelOpen ? "outline" : "primary"}
               onPress={toggleSavePanel}
             >
-              <Button.Label>{isSavePanelOpen ? "Fermer" : "Enregistrer"}</Button.Label>
+              <Button.Label>
+                {isSavePanelOpen ? "Fermer" : "Enregistrer"}
+              </Button.Label>
+            </Button>
+            <Button
+              className="flex-1"
+              onPress={generateIngredientsList}
+              isDisabled={isGeneratingList}
+            >
+              {isGeneratingList ? (
+                <Spinner size="sm" color="default" />
+              ) : (
+                <Button.Label>Générer la liste</Button.Label>
+              )}
             </Button>
           </View>
 
           {isSavePanelOpen ? (
             <View className="gap-3 rounded-xl bg-secondary p-4">
-              <Text className="text-base font-semibold text-foreground">Enregistrer dans une collection</Text>
+              <Text className="text-base font-semibold text-foreground">
+                Enregistrer dans une collection
+              </Text>
 
-              {saveError ? <Text className="text-sm text-danger">{saveError}</Text> : null}
+              {saveError ? (
+                <Text className="text-sm text-danger">{saveError}</Text>
+              ) : null}
 
               <View className="gap-2">
                 <TextField>
@@ -292,9 +358,12 @@ export default function RecipeDetailsScreen() {
                     className="flex-row items-center justify-between rounded-lg bg-background px-3 py-2"
                   >
                     <View className="shrink pr-2">
-                      <Text className="text-sm font-medium text-foreground">{collection.name}</Text>
+                      <Text className="text-sm font-medium text-foreground">
+                        {collection.name}
+                      </Text>
                       <Text className="text-xs text-muted-foreground">
-                        {collection.recipesCount} recette{collection.recipesCount > 1 ? "s" : ""}
+                        {collection.recipesCount} recette
+                        {collection.recipesCount > 1 ? "s" : ""}
                       </Text>
                     </View>
 
@@ -307,7 +376,11 @@ export default function RecipeDetailsScreen() {
                       {isSaving ? (
                         <Spinner size="sm" color="default" />
                       ) : (
-                        <Button.Label>{collection.hasRecipe ? "Déjà enregistrée" : "Enregistrer"}</Button.Label>
+                        <Button.Label>
+                          {collection.hasRecipe
+                            ? "Déjà enregistrée"
+                            : "Enregistrer"}
+                        </Button.Label>
                       )}
                     </Button>
                   </View>
@@ -322,7 +395,6 @@ export default function RecipeDetailsScreen() {
             </View>
           ) : null}
         </View>
-
       </View>
     </Container>
   );
