@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import z from "zod";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { authClient } from "@/lib/auth-client";
 
 import Loader from "./loader";
@@ -14,6 +14,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
   const navigate = useNavigate({
     from: "/",
   });
+  const queryClient = useQueryClient();
   const { isPending } = authClient.useSession();
 
   const form = useForm({
@@ -29,6 +30,7 @@ export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () 
         },
         {
           onSuccess: () => {
+            queryClient.clear();
             navigate({
               to: "/",
             });

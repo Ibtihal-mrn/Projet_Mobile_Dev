@@ -29,7 +29,7 @@ function SignIn() {
         onSuccess() {
           setEmail("");
           setPassword("");
-          queryClient.refetchQueries();
+          queryClient.clear();
           router.replace("/(drawer)");
         },
         onFinished() {

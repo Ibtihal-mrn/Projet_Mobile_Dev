@@ -21,5 +21,35 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          const base =
+            (user.name || user.email.split("@")[0] || "user")
+              .toLowerCase()
+              .replace(/[^a-z0-9_]/g, "") || "user";
+
+          let username = base;
+          for (let i = 0; i < 5; i++) {
+            const taken = await prisma.appUser.findUnique({ where: { username } });
+            if (!taken) break;
+            username = `${base}${Math.floor(1000 + Math.random() * 9000)}`;
+          }
+
+          await prisma.appUser.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              username,
+              passwordHash: "managed-by-better-auth",
+            },
+            update: {},
+          });
+        },
+      },
+    },
+  },
   plugins: [tanstackStartCookies(), expo()],
 });
