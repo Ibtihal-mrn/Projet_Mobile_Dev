@@ -1,9 +1,10 @@
 import { Link } from "expo-router";
 import { Button, Card, Input, Spinner, TextField } from "heroui-native";
-import { Image, Text, View, useWindowDimensions } from "react-native";
+import { Image, Text, View, useWindowDimensions, Pressable } from "react-native";
 import { Container } from "@/components/container";
 import { orpc } from "@/utils/orpc";
 import { useSearch } from "@my-app/hooks";
+
 
 
 export default function SearchScreen() {
@@ -134,6 +135,7 @@ export default function SearchScreen() {
                   marginBottom: GAP,
                 }}
               >
+               
                 <Link
                   href={{
                     pathname: "/(drawer)/recipes/[id]",
@@ -141,6 +143,7 @@ export default function SearchScreen() {
                   }}
                   asChild
                 >
+                  <Pressable style={{ width: cardWidth }}>
                   <Card variant="secondary" className="overflow-hidden" style={{ width: cardWidth }}>
                     <Image
                       source={{ uri: imageUrl }}
@@ -172,6 +175,7 @@ export default function SearchScreen() {
                       </Text>
                     </View>
                   </Card>
+                  </Pressable>
                 </Link>
               </View>
             );
